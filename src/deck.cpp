@@ -43,6 +43,7 @@ Card Deck::draw()
     auto drawIdx = mRandom->number(mBurnIdx + 1, kNumCards - 1);
     std::swap(mCards[mBurnIdx], mCards[drawIdx]);
     mBurnIdx++;
+    return mCards[mBurnIdx - 1];
 }
 
 

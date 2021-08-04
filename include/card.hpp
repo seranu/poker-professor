@@ -9,9 +9,9 @@ namespace professor
 enum class Suit: unsigned short 
 {
     Spade = 0,
-    Heart = 8,
-    Clubs = 16,
-    Diamond = 24 
+    Heart = 16,
+    Clubs = 32,
+    Diamond = 48 
 };
 
 enum class CardRank: uint16_t
@@ -36,7 +36,7 @@ class Card
 public:
     Card() = default;
     Card(CardRank rank, Suit suit)
-        : mInternalRepresentation(static_cast<uint16_t>(rank) << static_cast<unsigned short>(suit))
+        : mInternalRepresentation(static_cast<uint64_t>(rank) << static_cast<unsigned short>(suit))
     {}
 
     Card(const Card& other) = default;
@@ -54,9 +54,11 @@ class Cards
 public:
     Cards(const std::vector<Card> &cards);
     std::string toString() const;
+    uint64_t internalRepresentation() const { return mInternalRepresentation; }
+    uint16_t getSuit(Suit suit) const;
 
 private:
     uint64_t mInternalRepresentation { 0 };
 };
 
-}
+} // namespace professor

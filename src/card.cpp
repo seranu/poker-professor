@@ -1,28 +1,28 @@
 #include "card.hpp"
 
 #include "exception.hpp"
+#include <algorithm>
 
 namespace
 {
 using namespace professor;
-constexpr const uint16_t kRankMask = 0xffffffffffffffff;
+constexpr const uint64_t kRankMask = 0xffff;
 const Suit AllSuits[] = { Suit::Spade, Suit::Heart, Suit::Clubs, Suit::Diamond };
 const CardRank AllCardRanks[] = {
-        CardRank::Two,
-        CardRank::Three,
-        CardRank::Four,
-        CardRank::Five,
-        CardRank::Six,
-        CardRank::Seven,
-        CardRank::Eight,
-        CardRank::Nine,
-        CardRank::Ten,
-        CardRank::Jack,
-        CardRank::Queen,
-        CardRank::King,
-        CardRank::Ace
-    };
-}
+    CardRank::Two,
+    CardRank::Three,
+    CardRank::Four,
+    CardRank::Five,
+    CardRank::Six,
+    CardRank::Seven,
+    CardRank::Eight,
+    CardRank::Nine,
+    CardRank::Ten,
+    CardRank::Jack,
+    CardRank::Queen,
+    CardRank::King,
+    CardRank::Ace
+};
 
 std::string toString(CardRank rank)
 {
@@ -56,7 +56,7 @@ std::string toString(Suit suit)
             throw Exception("Invalid suit");
     }
 };
-}
+} // anonymous namespace
 
 namespace professor
 {
@@ -67,10 +67,11 @@ std::string Card::toString() const
         uint64_t mask = kRankMask << static_cast<unsigned short>(suit);
         uint64_t maybeRank = mInternalRepresentation & mask;
         if(maybeRank) {
-            CardRank rank = static_cast<CardRank>(maybeRank);
-            return "[ " + ::toString(rank) + ::toString(static_cast<Suit>(i)) + "]";
+            CardRank rank = static_cast<CardRank>(maybeRank >> static_cast<unsigned short>(suit));
+            return "[" + ::toString(rank) + ::toString(suit) + "]";
         }
     }
+    throw Exception("Unknown card");
 }
 
 Cards::Cards(const std::vector<Card> &cards)
@@ -83,12 +84,12 @@ Cards::Cards(const std::vector<Card> &cards)
 std::string Cards::toString() const
 {
     std::string result("[");
-    for_each(std::begin(AllSuits), std::end(AllSuits), [&result] (const Suit &suit) {
-        uint64_t mask = kRankMask << suit;
+    std::for_each(std::begin(AllSuits), std::end(AllSuits), [&] (const Suit &suit) {
+        uint64_t mask = kRankMask << static_cast<int>(suit);
         uint16_t suitCards = mInternalRepresentation & mask;
-        for_each(std::begin(AllCardRanks), std::end(AllCardRanks), [&] (const CardRank &rank) {
+        std::for_each(std::begin(AllCardRanks), std::end(AllCardRanks), [&] (const CardRank &rank) {
             if(suitCards & static_cast<uint16_t>(rank)) {
-                result += toString(rank) + toString(suit) + " ";
+                result += ::toString(rank) + ::toString(suit) + " ";
             }
         });
     });
@@ -96,4 +97,9 @@ std::string Cards::toString() const
     return result;
 }
 
+uint16_t Cards::getSuit(Suit suit) const
+{
+    return static_cast<uint16_t>(mInternalRepresentation >> static_cast<unsigned short>(suit));
 }
+
+} // namespace professor
