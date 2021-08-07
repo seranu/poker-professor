@@ -3,6 +3,8 @@
 #include <string>
 #include <vector>
 #include <exception>
+#include <unordered_set>
+#include <optional>
 
 namespace professor
 {
@@ -31,6 +33,13 @@ enum class CardRank: uint16_t
     Ace   = 1 << 12
 };
 
+std::string toStyleString(CardRank rank);
+std::string toStyleString(Suit suit);
+
+const std::vector<Suit>& getAllSuits();
+const std::vector<CardRank>& getAllCardRanks();
+const std::unordered_set<CardRank>& getCardRankSet();
+
 class Card
 {
 public:
@@ -53,12 +62,38 @@ class Cards
 {
 public:
     Cards(const std::vector<Card> &cards);
+
+    Cards(uint64_t cards)
+        : mInternalRepresentation(cards)
+        {}
+
     std::string toString() const;
     uint64_t internalRepresentation() const { return mInternalRepresentation; }
     uint16_t getSuit(Suit suit) const;
+    void add(Card card);
+    void add(const std::vector<Card> &cards);
+    static std::optional<Cards> fromString(const std::string &cardsStr);
 
 private:
     uint64_t mInternalRepresentation { 0 };
+};
+
+class CardRanks
+{
+public:
+    CardRanks(const uint16_t ranks)
+        : mInternalRepresentation(ranks)
+        {}
+    
+    CardRanks(const std::vector<CardRank> &ranks);
+    uint16_t internalRepresentation() const { return mInternalRepresentation; }
+    bool operator==(const CardRanks &other) const {
+        return mInternalRepresentation == other.mInternalRepresentation;
+    }
+
+    std::string toString() const;
+private:
+    uint16_t mInternalRepresentation { 0 };
 };
 
 } // namespace professor

@@ -4,7 +4,7 @@
 
 namespace professor
 {
-EquityResult EquityCalculator::calculateEquity(Hand heroHand, Hand villanHand, int numRuns)
+EquityResult EquityCalculator::calculateEquity(Cards heroHand, Cards villanHand, int numRuns)
 {
     for(auto i = 0; i < numRuns; i++) {
 
@@ -14,8 +14,10 @@ EquityResult EquityCalculator::calculateEquity(Hand heroHand, Hand villanHand, i
         board.drawTurn();
         board.drawRiver();
 
+/*
         std::vector<Hand> hands;
         std::vector<
+        */
     }
 }
 

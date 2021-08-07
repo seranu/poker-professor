@@ -14,7 +14,7 @@ class EquityCalculator
 {
 public:
     EquityCalculator() = default;
-    EquityResult calculateEquity(Hand heroHand, Hand villanHand, int numRuns);
+    EquityResult calculateEquity(Cards heroHand, Cards villanHand, int numRuns);
 private:
 };
 }

@@ -9,6 +9,8 @@ endif(MSVC)
 enable_testing()
 add_subdirectory(test)
 
+set(CMAKE_CXX_STANDARD 17)
+
 include_directories(poker-professor
     include)
 add_library(professor STATIC
@@ -16,6 +18,7 @@ add_library(professor STATIC
     src/random.cpp
     src/card.cpp
     src/poker_solver.cpp
+    src/debug.cpp
     )
 
 target_link_libraries(professor)

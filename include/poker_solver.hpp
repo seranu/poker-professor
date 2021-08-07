@@ -1,58 +1,88 @@
 #pragma once
 #include "card.hpp"
+#include <optional>
+#include <variant>
+#include <unordered_map>
+#include <map>
 
 namespace professor
 {
 struct HighCard
 {
-    Cards cards;
+    CardRanks mCards;
+    bool operator==(const struct HighCard& other) const;
+    std::string toString() const;
 };
 
 struct OnePair
 {
-    CardRank pairRank;
-    Cards cards;
+    CardRank mPair;
+    CardRanks mKickers;
+    bool operator==(const struct OnePair &other) const;
+    std::string toString() const;
 };
 
 struct TwoPair
 {
-    CardRank topPair;
-    CardRank bottomPair;
-    CardRank kicker;
+    CardRank mTopPair;
+    CardRank mBottomPair;
+    CardRank mKicker;
+    bool operator==(const struct TwoPair &other) const;
+    std::string toString() const;
 };
 
 struct Tripps
 {
-    CardRank tripps;
-    Cards kickers;
+    CardRank mTripps;
+    CardRanks mKickers;
+    bool operator==(const struct Tripps &other) const;
+    std::string toString() const;
 };
 
 struct Straight
 {
-    CardRank highCard;
+    CardRank mHighCard;
+    bool operator==(const struct Straight &other) const;
+    std::string toString() const;
 };
 
 struct Flush
 {
-    Cards cards;
-    Suit suit;
+    CardRanks mCards;
+    Suit mSuit;
+    bool operator==(const struct Flush &other) const;
+    std::string toString() const;
 };
 
 struct FullHouse
 {
-    CardRank tripps;
-    CardRank pair;
+    CardRank mTripps;
+    CardRank mPair;
+    bool operator==(const struct FullHouse& other) const;
+    std::string toString() const;
+};
+
+struct Quads
+{
+    CardRank mQuads;
+    CardRank mKicker;
+    bool operator==(const struct Quads &other) const;
+    std::string toString() const;
 };
 
 struct StraightFlush
 {
-    CardRank highCard;
-    Suit suit;
+    CardRank mHighCard;
+    Suit mSuit;
+    bool operator==(const struct StraightFlush &other) const;
+    std::string toString() const;
 };
 
 struct RoyalFlush
 {
-    Suit suit;
+    Suit mSuit;
+    bool operator==(const struct RoyalFlush &other) const;
+    std::string toString() const;
 };
 
 typedef std::variant<HighCard, OnePair, TwoPair, Tripps, Straight, Flush, FullHouse, StraightFlush, RoyalFlush> HandValueType;
@@ -68,6 +98,11 @@ std::optional<Quads> getQuads(const Cards &cards);
 std::optional<StraightFlush> getStraightFlush(const Cards &cards);
 std::optional<RoyalFlush> getRoyalFlush(const Cards &cards);
 
+
+std::unordered_map<uint64_t, Suit> getRoyalFlushesMap();
+std::map<uint64_t, Suit> getStraightFlushesMap();
+
+/*
 class HandValue
 {
 public:
@@ -83,10 +118,10 @@ class PokerResult
 {
 
 };
-
+*/
 class PokerSolver
 {
 public:
-    PokerResult solve();
+ //   PokerResult solve();
 };
 }

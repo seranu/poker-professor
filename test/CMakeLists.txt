@@ -3,6 +3,8 @@ include_directories(unittest
     ${TOP_DIR}/include
     ${TOP_DIR}/third-party/catch2)
 
+set(CMAKE_CXX_STANDARD 17)
+
 add_executable(unittest
     card_test.cpp
     test_main.cpp)
