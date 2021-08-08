@@ -4,6 +4,7 @@
 
 namespace std 
 {
+std::ostream& operator << ( std::ostream& os, professor::IHandValueType const& value );
 std::ostream& operator << ( std::ostream& os, professor::HighCard const& value );
 std::ostream& operator << ( std::ostream& os, professor::OnePair const& value );
 std::ostream& operator << ( std::ostream& os, professor::TwoPair const& value );

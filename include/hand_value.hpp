@@ -15,19 +15,13 @@ namespace professor
 struct IHandValueType
 {
     virtual std::string toString() const = 0;
-    virtual bool lessThan(const struct IHandValueType& other) {
-        assert(false); // should not happen;
-    }
-    virtual bool lessThan(const struct HighCard& other) const = 0;
-    virtual bool lessThan(const struct OnePair& other) const = 0;
-    virtual bool lessThan(const struct TwoPair& other) const = 0;
-    virtual bool lessThan(const struct Tripps& other) const = 0;
-    virtual bool lessThan(const struct Straight& other) const = 0;
-    virtual bool lessThan(const struct Flush& other) const = 0;
-    virtual bool lessThan(const struct FullHouse& other) const = 0;
-    virtual bool lessThan(const struct Quads& other) const = 0;
-    virtual bool lessThan(const struct StraightFlush& other) const = 0;
-    virtual bool lessThan(const struct RoyalFlush& other) const = 0;
+    virtual bool operator< (const struct IHandValueType& other) const = 0;
+    virtual bool operator==(const struct IHandValueType& other) const = 0;
+    bool operator!=(const struct IHandValueType& other) const
+        { return !(*this == other); }
+
+    bool operator>(const struct IHandValueType& other) const
+        { return !(*this < other); }
 };
 
 struct HighCard: public IHandValueType
@@ -39,19 +33,10 @@ struct HighCard: public IHandValueType
         {
         }
 
+    bool operator==(const struct IHandValueType &other) const override;
     bool operator==(const struct HighCard& other) const;
-
-    bool lessThan(const struct HighCard& other) const override;
-    bool lessThan(const struct OnePair& other) const override;
-    bool lessThan(const struct TwoPair& other) const override;
-    bool lessThan(const struct Tripps& other) const override;
-    bool lessThan(const struct Straight& other) const override;
-    bool lessThan(const struct Flush& other) const override;
-    bool lessThan(const struct FullHouse& other) const override;
-    bool lessThan(const struct Quads& other) const override;
-    bool lessThan(const struct StraightFlush& other) const override;
-    bool lessThan(const struct RoyalFlush& other) const override;
-
+    bool operator<(const struct IHandValueType& other) const override;
+    bool operator<(const struct HighCard& other) const;
     std::string toString() const override;
 };
 
@@ -65,18 +50,11 @@ struct OnePair: public IHandValueType
         , mKickers(kickers)
         {
         }
-    bool operator==(const struct OnePair &other) const;
 
-    bool lessThan(const struct HighCard& other) const override;
-    bool lessThan(const struct OnePair& other) const override;
-    bool lessThan(const struct TwoPair& other) const override;
-    bool lessThan(const struct Tripps& other) const override;
-    bool lessThan(const struct Straight& other) const override;
-    bool lessThan(const struct Flush& other) const override;
-    bool lessThan(const struct FullHouse& other) const override;
-    bool lessThan(const struct Quads& other) const override;
-    bool lessThan(const struct StraightFlush& other) const override;
-    bool lessThan(const struct RoyalFlush& other) const override;
+    bool operator==(const struct IHandValueType &other) const override;
+    bool operator==(const struct OnePair &other) const;
+    bool operator<(const struct IHandValueType& other) const override;
+    bool operator<(const struct OnePair& other) const;
 
     std::string toString() const override;
 };
@@ -94,18 +72,10 @@ struct TwoPair: public IHandValueType
         {
         }
 
+    bool operator==(const struct IHandValueType &other) const override;
     bool operator==(const struct TwoPair &other) const;
-
-    bool lessThan(const struct HighCard& other) const override;
-    bool lessThan(const struct OnePair& other) const override;
-    bool lessThan(const struct TwoPair& other) const override;
-    bool lessThan(const struct Tripps& other) const override;
-    bool lessThan(const struct Straight& other) const override;
-    bool lessThan(const struct Flush& other) const override;
-    bool lessThan(const struct FullHouse& other) const override;
-    bool lessThan(const struct Quads& other) const override;
-    bool lessThan(const struct StraightFlush& other) const override;
-    bool lessThan(const struct RoyalFlush& other) const override;
+    bool operator<(const struct IHandValueType& other) const override;
+    bool operator<(const struct TwoPair& other) const;
 
     std::string toString() const override;
 };
@@ -121,18 +91,10 @@ struct Tripps: public IHandValueType
         {
         }
 
+    bool operator==(const struct IHandValueType &other) const override;
     bool operator==(const struct Tripps &other) const;
-
-    bool lessThan(const struct HighCard& other) const override;
-    bool lessThan(const struct OnePair& other) const override;
-    bool lessThan(const struct TwoPair& other) const override;
-    bool lessThan(const struct Tripps& other) const override;
-    bool lessThan(const struct Straight& other) const override;
-    bool lessThan(const struct Flush& other) const override;
-    bool lessThan(const struct FullHouse& other) const override;
-    bool lessThan(const struct Quads& other) const override;
-    bool lessThan(const struct StraightFlush& other) const override;
-    bool lessThan(const struct RoyalFlush& other) const override;
+    bool operator<(const struct IHandValueType& other) const override;
+    bool operator<(const struct Tripps &other) const;
 
     std::string toString() const override;
 };
@@ -146,18 +108,10 @@ struct Straight: public IHandValueType
         {
         }
 
+    bool operator==(const struct IHandValueType &other) const override;
     bool operator==(const struct Straight &other) const;
-
-    bool lessThan(const struct HighCard& other) const override;
-    bool lessThan(const struct OnePair& other) const override;
-    bool lessThan(const struct TwoPair& other) const override;
-    bool lessThan(const struct Tripps& other) const override;
-    bool lessThan(const struct Straight& other) const override;
-    bool lessThan(const struct Flush& other) const override;
-    bool lessThan(const struct FullHouse& other) const override;
-    bool lessThan(const struct Quads& other) const override;
-    bool lessThan(const struct StraightFlush& other) const override;
-    bool lessThan(const struct RoyalFlush& other) const override;
+    bool operator<(const struct IHandValueType& other) const override;
+    bool operator<(const struct Straight &other) const;
 
     std::string toString() const override;
 };
@@ -173,17 +127,10 @@ struct Flush: public IHandValueType
         {
         }
 
+    bool operator==(const struct IHandValueType &other) const override;
     bool operator==(const struct Flush &other) const;
-    bool lessThan(const struct HighCard& other) const override;
-    bool lessThan(const struct OnePair& other) const override;
-    bool lessThan(const struct TwoPair& other) const override;
-    bool lessThan(const struct Tripps& other) const override;
-    bool lessThan(const struct Straight& other) const override;
-    bool lessThan(const struct Flush& other) const override;
-    bool lessThan(const struct FullHouse& other) const override;
-    bool lessThan(const struct Quads& other) const override;
-    bool lessThan(const struct StraightFlush& other) const override;
-    bool lessThan(const struct RoyalFlush& other) const override;
+    bool operator<(const struct IHandValueType& other) const override;
+    bool operator<(const struct Flush &other) const;
 
     std::string toString() const override;
 };
@@ -199,17 +146,10 @@ struct FullHouse: public IHandValueType
         {
         }
 
+    bool operator==(const struct IHandValueType &other) const override;
     bool operator==(const struct FullHouse& other) const;
-    bool lessThan(const struct HighCard& other) const override;
-    bool lessThan(const struct OnePair& other) const override;
-    bool lessThan(const struct TwoPair& other) const override;
-    bool lessThan(const struct Tripps& other) const override;
-    bool lessThan(const struct Straight& other) const override;
-    bool lessThan(const struct Flush& other) const override;
-    bool lessThan(const struct FullHouse& other) const override;
-    bool lessThan(const struct Quads& other) const override;
-    bool lessThan(const struct StraightFlush& other) const override;
-    bool lessThan(const struct RoyalFlush& other) const override;
+    bool operator<(const struct IHandValueType& other) const override;
+    bool operator<(const struct FullHouse &other) const;
 
     std::string toString() const override;
 };
@@ -225,17 +165,10 @@ struct Quads: public IHandValueType
         {
         }
 
+    bool operator==(const struct IHandValueType &other) const override;
     bool operator==(const struct Quads &other) const;
-    bool lessThan(const struct HighCard& other) const override;
-    bool lessThan(const struct OnePair& other) const override;
-    bool lessThan(const struct TwoPair& other) const override;
-    bool lessThan(const struct Tripps& other) const override;
-    bool lessThan(const struct Straight& other) const override;
-    bool lessThan(const struct Flush& other) const override;
-    bool lessThan(const struct FullHouse& other) const override;
-    bool lessThan(const struct Quads& other) const override;
-    bool lessThan(const struct StraightFlush& other) const override;
-    bool lessThan(const struct RoyalFlush& other) const override;
+    bool operator<(const struct IHandValueType& other) const override;
+    bool operator<(const struct Quads &other) const;
 
     std::string toString() const override;
 };
@@ -251,17 +184,10 @@ struct StraightFlush: public IHandValueType
         {
         }
 
+    bool operator==(const struct IHandValueType &other) const override;
     bool operator==(const struct StraightFlush &other) const;
-    bool lessThan(const struct HighCard& other) const override;
-    bool lessThan(const struct OnePair& other) const override;
-    bool lessThan(const struct TwoPair& other) const override;
-    bool lessThan(const struct Tripps& other) const override;
-    bool lessThan(const struct Straight& other) const override;
-    bool lessThan(const struct Flush& other) const override;
-    bool lessThan(const struct FullHouse& other) const override;
-    bool lessThan(const struct Quads& other) const override;
-    bool lessThan(const struct StraightFlush& other) const override;
-    bool lessThan(const struct RoyalFlush& other) const override;
+    bool operator<(const struct IHandValueType& other) const override;
+    bool operator<(const struct StraightFlush &other) const;
 
     std::string toString() const override;
 };
@@ -275,17 +201,10 @@ struct RoyalFlush: public IHandValueType
         {
         }
 
+    bool operator==(const struct IHandValueType &other) const override;
     bool operator==(const struct RoyalFlush &other) const;
-    bool lessThan(const struct HighCard& other) const override;
-    bool lessThan(const struct OnePair& other) const override;
-    bool lessThan(const struct TwoPair& other) const override;
-    bool lessThan(const struct Tripps& other) const override;
-    bool lessThan(const struct Straight& other) const override;
-    bool lessThan(const struct Flush& other) const override;
-    bool lessThan(const struct FullHouse& other) const override;
-    bool lessThan(const struct Quads& other) const override;
-    bool lessThan(const struct StraightFlush& other) const override;
-    bool lessThan(const struct RoyalFlush& other) const override;
+    bool operator<(const struct IHandValueType& other) const override;
+    bool operator<(const struct RoyalFlush &other) const;
 
     std::string toString() const override;
 };

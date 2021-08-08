@@ -317,4 +317,13 @@ TEST_CASE("Hand value test")
         REQUIRE(highCard);
         CHECK(*highCard == cards.mHighCard);
     }
+
+    SECTION("Comparison")
+    {
+        auto playerOneCards = *Cards::fromString("2h Ad 6h 3c 5c 8c 6d");
+        auto playerTwoCards = *Cards::fromString("Ah Jc 6h 3c 5c 8c 6d");
+        HandValue playerOneHandValue(playerOneCards);
+        HandValue playerTwoHandValue(playerTwoCards);
+        CHECK(playerTwoHandValue.getHandValueType() > playerOneHandValue.getHandValueType());
+    }
 }

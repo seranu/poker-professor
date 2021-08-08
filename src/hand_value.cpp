@@ -9,6 +9,19 @@ namespace
 {
 using namespace professor;
 
+std::unordered_map<size_t, int> sTypeInfos = {
+    { typeid(HighCard).hash_code(),      0 },
+    { typeid(OnePair).hash_code(),       1 },
+    { typeid(TwoPair).hash_code(),       2 },
+    { typeid(Tripps).hash_code(),        3 },
+    { typeid(Straight).hash_code(),      4 },
+    { typeid(Flush).hash_code(),         5 },
+    { typeid(FullHouse).hash_code(),     6 },
+    { typeid(Quads).hash_code(),         7 },
+    { typeid(StraightFlush).hash_code(), 8 },
+    { typeid(RoyalFlush).hash_code(),    9 }
+};
+
 uint16_t aceHighStraight()
 {
     return static_cast<uint16_t>(CardRank::Ace) | 
@@ -88,125 +101,6 @@ uint16_t getSameCards(const Cards &cards)
 
 namespace professor
 {
-bool HighCard::operator==(const struct HighCard& other) const 
-{
-    return mCards == other.mCards;
-}
-
-std::string HighCard::toString() const
-{
-    std::ostringstream oss;
-    oss << "High card: " << mCards.toString();
-    return oss.str();
-}
-
-bool OnePair::operator==(const struct OnePair &other) const
-{
-    return mPair == other.mPair && mKickers == other.mKickers;
-}
-
-std::string OnePair::toString() const
-{
-    std::ostringstream oss;
-    oss << "One pair of " << toStyleString(mPair) << "s with kickers : [" << mKickers.toString() << "]";
-    return oss.str();
-}
-
-bool TwoPair::operator==(const struct TwoPair &other) const 
-{
-    return mTopPair == other.mTopPair && mBottomPair == other.mBottomPair && mKicker == other.mKicker;
-}
-
-std::string TwoPair::toString() const
-{
-    std::ostringstream oss;
-    oss << "Two pair: " << toStyleString(mTopPair) << "s with " << toStyleString(mBottomPair) << "s, " << toStyleString(mKicker) << " kicker";
-    return oss.str();
-}
-
-bool Tripps::operator==(const struct Tripps &other) const
-{
-    return mTripps == other.mTripps && mKickers == other.mKickers;
-}
-
-std::string Tripps::toString() const
-{
-    std::ostringstream oss;
-    oss << "Three of a kind: " << toStyleString(mTripps) << "s, " << mKickers.toString() << " kickers";
-    return oss.str();
-}
-
-bool Straight::operator==(const struct Straight &other) const
-{
-    return mHighCard == other.mHighCard;
-}
-
-std::string Straight::toString() const
-{
-    std::ostringstream oss;
-    oss << "Straight " << toStyleString(mHighCard) << " high";
-    return oss.str();
-}
-
-bool Flush::operator==(const struct Flush &other) const
-{
-    return mCards == other.mCards && mSuit == other.mSuit;
-}
-
-std::string Flush::toString() const
-{
-    std::ostringstream oss;
-    oss << "Flush: " << mCards.toString() << " of suit " << toStyleString(mSuit);
-    return oss.str();
-}
-
-bool FullHouse::operator==(const struct FullHouse& other) const 
-{
-    return mTripps == other.mTripps && mPair == other.mPair;
-}
-
-std::string FullHouse::toString() const
-{
-    std::ostringstream oss;
-    oss << "Full house: " << toStyleString(mTripps) << "s full with " << toStyleString(mPair) << "s";
-    return oss.str();
-}
-
-bool Quads::operator==(const struct Quads &other) const 
-{
-    return mQuads == other.mQuads && mKicker == other.mKicker;
-}
-
-std::string Quads::toString() const
-{
-    std::ostringstream oss;
-    oss << "Four of a kind: " << toStyleString(mQuads) << ", " << toStyleString(mKicker) << " kicker";
-    return oss.str();
-}
-
-bool StraightFlush::operator==(const struct StraightFlush &other) const 
-{
-    return mHighCard == other.mHighCard && mSuit == other.mSuit;
-}
-
-std::string StraightFlush::toString() const
-{
-    std::ostringstream oss;
-    oss << "Straight flush " << toStyleString(mHighCard) << " high, " << toStyleString(mSuit);
-    return oss.str();
-}
-
-bool RoyalFlush::operator==(const struct RoyalFlush &other) const 
-{
-    return mSuit == other.mSuit;
-}
-
-std::string RoyalFlush::toString() const
-{
-    std::ostringstream oss;
-    oss << "Royal flush of " << toStyleString(mSuit);
-    return oss.str();
-}
 
 std::unordered_map<uint64_t, Suit> getRoyalFlushesMap()
 {
@@ -407,69 +301,73 @@ std::optional<RoyalFlush> getRoyalFlush(const Cards &cards)
     return {};
 }
 
-//// Comparers /////////////////////////////////////////////////////////////////
-
 //// HighCard //////////////////////////////////////////////////////////////////
 
-bool HighCard::lessThan(const struct HighCard& other) const
+bool HighCard::operator<(const struct IHandValueType& other) const
 {
-    // TODO check
+    const auto &thisTypeInfo = typeid(*this);
+    const auto &otherTypeInfo = typeid(other);
+    if(thisTypeInfo == otherTypeInfo) {
+        auto otherDerrived = static_cast<const HighCard&>(other);
+        return *this < otherDerrived;
+    }
+
+    return sTypeInfos[thisTypeInfo.hash_code()] < sTypeInfos[otherTypeInfo.hash_code()];
+}
+
+bool HighCard::operator<(const struct HighCard& other) const
+{
     return mCards < other.mCards;
 }
 
-bool HighCard::lessThan(const struct OnePair& other) const
+bool HighCard::operator==(const struct IHandValueType& other) const
 {
-    return true;
+    if(typeid(other) == typeid(*this)) {
+        auto otherDerrived = static_cast<const HighCard&>(other);
+        return *this == otherDerrived;
+    }   
+    return false;
 }
 
-bool HighCard::lessThan(const struct TwoPair& other) const
+bool HighCard::operator==(const struct HighCard& other) const 
 {
-    return true;
+    return mCards == other.mCards;
 }
 
-bool HighCard::lessThan(const struct Tripps& other) const
+std::string HighCard::toString() const
 {
-    return true;
-}
-
-bool HighCard::lessThan(const struct Straight& other) const
-{
-    return true;
-}
-
-bool HighCard::lessThan(const struct Flush& other) const
-{
-    return true;
-}
-
-bool HighCard::lessThan(const struct FullHouse& other) const
-{
-    return true;
-}
-
-bool HighCard::lessThan(const struct Quads& other) const
-{
-    return true;
-}
-
-bool HighCard::lessThan(const struct StraightFlush& other) const
-{
-    return true;
-}
-
-bool HighCard::lessThan(const struct RoyalFlush& other) const
-{
-    return true;
+    std::ostringstream oss;
+    oss << "High card: " << mCards.toString();
+    return oss.str();
 }
 
 //// OnePair ///////////////////////////////////////////////////////////////////
 
-bool OnePair::lessThan(const struct HighCard& other) const
+bool OnePair::operator==(const struct OnePair &other) const
 {
-    return false;
+    return mPair == other.mPair && mKickers == other.mKickers;
 }
 
-bool OnePair::lessThan(const struct OnePair& other) const
+std::string OnePair::toString() const
+{
+    std::ostringstream oss;
+    oss << "One pair of " << toStyleString(mPair) << "s with kickers : [" << mKickers.toString() << "]";
+    return oss.str();
+}
+
+bool OnePair::operator<(const struct IHandValueType& other) const
+{
+    const auto &thisTypeInfo = typeid(*this);
+    const auto &otherTypeInfo = typeid(other);
+    if(thisTypeInfo == otherTypeInfo) {
+        auto otherDerrived = static_cast<const OnePair&>(other);
+        return *this < otherDerrived;
+    }
+
+    return sTypeInfos[thisTypeInfo.hash_code()] < sTypeInfos[otherTypeInfo.hash_code()];
+}
+
+bool OnePair::operator<(const struct OnePair &other) const
 {
     if (mPair == other.mPair) {
         return mKickers < other.mKickers;
@@ -477,59 +375,51 @@ bool OnePair::lessThan(const struct OnePair& other) const
     return mPair < other.mPair;
 }
 
-bool OnePair::lessThan(const struct TwoPair& other) const
+bool OnePair::operator==(const struct IHandValueType& other) const
 {
-    return true;
-}
-
-bool OnePair::lessThan(const struct Tripps& other) const
-{
-    return true;
-}
-
-bool OnePair::lessThan(const struct Straight& other) const
-{
-    return true;
-}
-
-bool OnePair::lessThan(const struct Flush& other) const
-{
-    return true;
-}
-
-bool OnePair::lessThan(const struct FullHouse& other) const
-{
-    return true;
-}
-
-bool OnePair::lessThan(const struct Quads& other) const
-{
-    return true;
-}
-
-bool OnePair::lessThan(const struct StraightFlush& other) const
-{
-    return true;
-}
-
-bool OnePair::lessThan(const struct RoyalFlush& other) const
-{
-    return true;
+    if(typeid(other) == typeid(*this)) {
+        auto otherDerrived = static_cast<const OnePair&>(other);
+        return *this == otherDerrived;
+    }   
+    return false;
 }
 
 //// TwoPair ///////////////////////////////////////////////////////////////////
 
-bool TwoPair::lessThan(const struct HighCard& other) const
+bool TwoPair::operator==(const struct IHandValueType& other) const
 {
+    if(typeid(other) == typeid(*this)) {
+        auto otherDerrived = static_cast<const TwoPair&>(other);
+        return *this == otherDerrived;
+    }   
     return false;
 }
 
-bool TwoPair::lessThan(const struct OnePair& other) const
+bool TwoPair::operator==(const struct TwoPair &other) const 
 {
-    return false;
+    return mTopPair == other.mTopPair && mBottomPair == other.mBottomPair && mKicker == other.mKicker;
 }
 
-bool TwoPair::lessThan(const struct TwoPair& other) const
+std::string TwoPair::toString() const
+{
+    std::ostringstream oss;
+    oss << "Two pair: " << toStyleString(mTopPair) << "s with " << toStyleString(mBottomPair) << "s, " << toStyleString(mKicker) << " kicker";
+    return oss.str();
+}
+
+bool TwoPair::operator<(const struct IHandValueType& other) const
+{
+    const auto &thisTypeInfo = typeid(*this);
+    const auto &otherTypeInfo = typeid(other);
+    if(thisTypeInfo == otherTypeInfo) {
+        auto otherDerrived = static_cast<const TwoPair&>(other);
+        return *this < otherDerrived;
+    }
+
+    return sTypeInfos[thisTypeInfo.hash_code()] < sTypeInfos[otherTypeInfo.hash_code()];
+}
+
+bool TwoPair::operator<(const struct TwoPair& other) const 
 {
     if (mTopPair == other.mTopPair) {
         if(mBottomPair == other.mBottomPair) {
@@ -541,59 +431,42 @@ bool TwoPair::lessThan(const struct TwoPair& other) const
     return mTopPair < other.mTopPair;
 }
 
-bool TwoPair::lessThan(const struct Tripps& other) const
-{
-    return true;
-}
-
-bool TwoPair::lessThan(const struct Straight& other) const
-{
-    return true;
-}
-
-bool TwoPair::lessThan(const struct Flush& other) const
-{
-    return true;
-}
-
-bool TwoPair::lessThan(const struct FullHouse& other) const
-{
-    return true;
-}
-
-bool TwoPair::lessThan(const struct Quads& other) const
-{
-    return true;
-}
-
-bool TwoPair::lessThan(const struct StraightFlush& other) const
-{
-    return true;
-}
-
-bool TwoPair::lessThan(const struct RoyalFlush& other) const
-{
-    return true;
-}
-
 //// Tripps ///////////////////////////////////////////////////////////////////
 
-bool Tripps::lessThan(const struct HighCard& other) const
+bool Tripps::operator==(const struct IHandValueType &other) const
 {
+    if(typeid(*this) == typeid(other)) {
+        auto otherDerrived = static_cast<const Tripps&>(other);
+        return *this == otherDerrived;
+    }
     return false;
 }
 
-bool Tripps::lessThan(const struct OnePair& other) const
+bool Tripps::operator==(const struct Tripps &other) const
 {
-    return false;
+    return mTripps == other.mTripps && mKickers == other.mKickers;
 }
 
-bool Tripps::lessThan(const struct TwoPair& other) const
+std::string Tripps::toString() const
 {
-    return false;
+    std::ostringstream oss;
+    oss << "Three of a kind: " << toStyleString(mTripps) << "s, " << mKickers.toString() << " kickers";
+    return oss.str();
 }
 
-bool Tripps::lessThan(const struct Tripps& other) const
+bool Tripps::operator<(const struct IHandValueType& other) const
+{
+    const auto &thisTypeInfo = typeid(*this);
+    const auto &otherTypeInfo = typeid(other);
+    if(thisTypeInfo == otherTypeInfo) {
+        auto otherDerrived = static_cast<const Tripps&>(other);
+        return *this < otherDerrived;
+    }
+
+    return sTypeInfos[thisTypeInfo.hash_code()] < sTypeInfos[otherTypeInfo.hash_code()];
+}
+
+bool Tripps::operator<(const struct Tripps& other) const 
 {
     if(mTripps == other.mTripps) {
         return mKickers < other.mKickers;
@@ -601,173 +474,122 @@ bool Tripps::lessThan(const struct Tripps& other) const
     return mTripps < other.mTripps;
 }
 
-bool Tripps::lessThan(const struct Straight& other) const
-{
-    return true;
-}
-
-bool Tripps::lessThan(const struct Flush& other) const
-{
-    return true;
-}
-
-bool Tripps::lessThan(const struct FullHouse& other) const
-{
-    return true;
-}
-
-bool Tripps::lessThan(const struct Quads& other) const
-{
-    return true;
-}
-
-bool Tripps::lessThan(const struct StraightFlush& other) const
-{
-    return true;
-}
-
-bool Tripps::lessThan(const struct RoyalFlush& other) const
-{
-    return true;
-}
-
 //// Straight //////////////////////////////////////////////////////////////////
 
-bool Straight::lessThan(const struct HighCard& other) const
+bool Straight::operator==(const struct IHandValueType &other) const
 {
+    if(typeid(*this) == typeid(other)) {
+        auto otherDerrived = static_cast<const Straight&>(other);
+        return *this == otherDerrived;
+    }
     return false;
 }
 
-bool Straight::lessThan(const struct OnePair& other) const
+bool Straight::operator<(const struct IHandValueType& other) const
 {
-    return false;
+    const auto &thisTypeInfo = typeid(*this);
+    const auto &otherTypeInfo = typeid(other);
+    if(thisTypeInfo == otherTypeInfo) {
+        auto otherDerrived = static_cast<const Straight&>(other);
+        return *this < otherDerrived;
+    }
+
+    return sTypeInfos[thisTypeInfo.hash_code()] < sTypeInfos[otherTypeInfo.hash_code()];
 }
 
-bool Straight::lessThan(const struct TwoPair& other) const
+bool Straight::operator==(const struct Straight &other) const
 {
-    return false;
+    return mHighCard == other.mHighCard;
 }
 
-bool Straight::lessThan(const struct Tripps& other) const
+std::string Straight::toString() const
 {
-    return false;
+    std::ostringstream oss;
+    oss << "Straight " << toStyleString(mHighCard) << " high";
+    return oss.str();
 }
 
-bool Straight::lessThan(const struct Straight& other) const
+bool Straight::operator<(const struct Straight& other) const
 {
     return mHighCard < other.mHighCard;
 }
 
-bool Straight::lessThan(const struct Flush& other) const
-{
-    return true;
-}
-
-bool Straight::lessThan(const struct FullHouse& other) const
-{
-    return true;
-}
-
-bool Straight::lessThan(const struct Quads& other) const
-{
-    return true;
-}
-
-bool Straight::lessThan(const struct StraightFlush& other) const
-{
-    return true;
-}
-
-bool Straight::lessThan(const struct RoyalFlush& other) const
-{
-    return true;
-}
-
 //// Flush ////////////////////////////////////////////////////////////////////
 
-bool Flush::lessThan(const struct HighCard& other) const
+bool Flush::operator==(const struct Flush &other) const
 {
+    return mCards == other.mCards && mSuit == other.mSuit;
+}
+
+std::string Flush::toString() const
+{
+    std::ostringstream oss;
+    oss << "Flush: " << mCards.toString() << " of suit " << toStyleString(mSuit);
+    return oss.str();
+}
+
+bool Flush::operator==(const struct IHandValueType &other) const
+{
+    if(typeid(*this) == typeid(other)) {
+        auto otherDerrived = static_cast<const Flush&>(other);
+        return *this == otherDerrived;
+    }
     return false;
 }
 
-bool Flush::lessThan(const struct OnePair& other) const
+bool Flush::operator<(const struct IHandValueType& other) const
 {
-    return false;
+    const auto &thisTypeInfo = typeid(*this);
+    const auto &otherTypeInfo = typeid(other);
+    if(thisTypeInfo == otherTypeInfo) {
+        auto otherDerrived = static_cast<const Flush&>(other);
+        return *this < otherDerrived;
+    }
+
+    return sTypeInfos[thisTypeInfo.hash_code()] < sTypeInfos[otherTypeInfo.hash_code()];
 }
 
-bool Flush::lessThan(const struct TwoPair& other) const
-{
-    return false;
-}
-
-bool Flush::lessThan(const struct Tripps& other) const
-{
-    return false;
-}
-
-bool Flush::lessThan(const struct Straight& other) const
-{
-    return false;
-}
-
-bool Flush::lessThan(const struct Flush& other) const
+bool Flush::operator<(const struct Flush& other) const
 {
     return mCards < other.mCards;
 }
 
-bool Flush::lessThan(const struct FullHouse& other) const
-{
-    return true;
-}
-
-bool Flush::lessThan(const struct Quads& other) const
-{
-    return true;
-}
-
-bool Flush::lessThan(const struct StraightFlush& other) const
-{
-    return true;
-}
-
-bool Flush::lessThan(const struct RoyalFlush& other) const
-{
-    return true;
-}
-
 //// FullHouse /////////////////////////////////////////////////////////////////
 
-bool FullHouse::lessThan(const struct HighCard& other) const
+bool FullHouse::operator==(const struct FullHouse& other) const 
 {
+    return mTripps == other.mTripps && mPair == other.mPair;
+}
+
+std::string FullHouse::toString() const
+{
+    std::ostringstream oss;
+    oss << "Full house: " << toStyleString(mTripps) << "s full with " << toStyleString(mPair) << "s";
+    return oss.str();
+}
+
+bool FullHouse::operator==(const struct IHandValueType &other) const
+{
+    if(typeid(*this) == typeid(other)) {
+        auto otherDerrived = static_cast<const FullHouse&>(other);
+        return *this == otherDerrived;
+    }
     return false;
 }
 
-bool FullHouse::lessThan(const struct OnePair& other) const
+bool FullHouse::operator<(const struct IHandValueType& other) const
 {
-    return false;
+    const auto &thisTypeInfo = typeid(*this);
+    const auto &otherTypeInfo = typeid(other);
+    if(thisTypeInfo == otherTypeInfo) {
+        auto otherDerrived = static_cast<const FullHouse&>(other);
+        return *this < otherDerrived;
+    }
+
+    return sTypeInfos[thisTypeInfo.hash_code()] < sTypeInfos[otherTypeInfo.hash_code()];
 }
 
-bool FullHouse::lessThan(const struct TwoPair& other) const
-{
-    return false;
-}
-
-bool FullHouse::lessThan(const struct Tripps& other) const
-{
-    return false;
-}
-
-bool FullHouse::lessThan(const struct Straight& other) const
-{
-    return false;
-}
-
-bool FullHouse::lessThan(const struct Flush& other) const
-{
-    return false;
-}
-
-bool FullHouse::lessThan(const struct FullHouse& other) const
+bool FullHouse::operator<(const struct FullHouse& other) const
 {
     if(mTripps == other.mTripps) {
         return mPair < other.mPair;
@@ -775,173 +597,123 @@ bool FullHouse::lessThan(const struct FullHouse& other) const
     return mTripps < other.mTripps;
 }
 
-bool FullHouse::lessThan(const struct Quads& other) const
-{
-    return true;
-}
-
-bool FullHouse::lessThan(const struct StraightFlush& other) const
-{
-    return true;
-}
-
-bool FullHouse::lessThan(const struct RoyalFlush& other) const
-{
-    return true;
-}
-
 //// Quads /////////////////////////////////////////////////////////////////////
 
-bool Quads::lessThan(const struct HighCard& other) const
+bool Quads::operator==(const struct Quads &other) const 
 {
+    return mQuads == other.mQuads && mKicker == other.mKicker;
+}
+
+std::string Quads::toString() const
+{
+    std::ostringstream oss;
+    oss << "Four of a kind: " << toStyleString(mQuads) << ", " << toStyleString(mKicker) << " kicker";
+    return oss.str();
+}
+
+
+bool Quads::operator==(const struct IHandValueType &other) const
+{
+    if(typeid(*this) == typeid(other)) {
+        auto otherDerrived = static_cast<const Quads&>(other);
+        return *this == otherDerrived;
+    }
     return false;
 }
 
-bool Quads::lessThan(const struct OnePair& other) const
+bool Quads::operator<(const struct IHandValueType& other) const
 {
-    return false;
+    const auto &thisTypeInfo = typeid(*this);
+    const auto &otherTypeInfo = typeid(other);
+    if(thisTypeInfo == otherTypeInfo) {
+        auto otherDerrived = static_cast<const Quads&>(other);
+        return *this < otherDerrived;
+    }
+
+    return sTypeInfos[thisTypeInfo.hash_code()] < sTypeInfos[otherTypeInfo.hash_code()];
 }
 
-bool Quads::lessThan(const struct TwoPair& other) const
-{
-    return false;
-}
-
-bool Quads::lessThan(const struct Tripps& other) const
-{
-    return false;
-}
-
-bool Quads::lessThan(const struct Straight& other) const
-{
-    return false;
-}
-
-bool Quads::lessThan(const struct Flush& other) const
-{
-    return false;
-}
-
-bool Quads::lessThan(const struct FullHouse& other) const
-{
-    return false;
-}
-
-bool Quads::lessThan(const struct Quads& other) const
+bool Quads::operator<(const struct Quads& other) const
 {
     return mQuads < other.mQuads;
 }
 
-bool Quads::lessThan(const struct StraightFlush& other) const
-{
-    return true;
-}
-
-bool Quads::lessThan(const struct RoyalFlush& other) const
-{
-    return true;
-}
-
 //// StraightFlush /////////////////////////////////////////////////////////////
 
-bool StraightFlush::lessThan(const struct HighCard& other) const
+bool StraightFlush::operator==(const struct StraightFlush &other) const 
 {
+    return mHighCard == other.mHighCard && mSuit == other.mSuit;
+}
+
+std::string StraightFlush::toString() const
+{
+    std::ostringstream oss;
+    oss << "Straight flush " << toStyleString(mHighCard) << " high, " << toStyleString(mSuit);
+    return oss.str();
+}
+
+bool StraightFlush::operator==(const struct IHandValueType &other) const
+{
+    if(typeid(*this) == typeid(other)) {
+        auto otherDerrived = static_cast<const StraightFlush&>(other);
+        return *this == otherDerrived;
+    }
     return false;
 }
 
-bool StraightFlush::lessThan(const struct OnePair& other) const
+bool StraightFlush::operator<(const struct IHandValueType& other) const
 {
-    return false;
+    const auto &thisTypeInfo = typeid(*this);
+    const auto &otherTypeInfo = typeid(other);
+    if(thisTypeInfo == otherTypeInfo) {
+        auto otherDerrived = static_cast<const StraightFlush&>(other);
+        return *this < otherDerrived;
+    }
+
+    return sTypeInfos[thisTypeInfo.hash_code()] < sTypeInfos[otherTypeInfo.hash_code()];
 }
 
-bool StraightFlush::lessThan(const struct TwoPair& other) const
-{
-    return false;
-}
-
-bool StraightFlush::lessThan(const struct Tripps& other) const
-{
-    return false;
-}
-
-bool StraightFlush::lessThan(const struct Straight& other) const
-{
-    return false;
-}
-
-bool StraightFlush::lessThan(const struct Flush& other) const
-{
-    return false;
-}
-
-bool StraightFlush::lessThan(const struct FullHouse& other) const
-{
-    return false;
-}
-
-bool StraightFlush::lessThan(const struct Quads& other) const
-{
-    return false;
-}
-
-bool StraightFlush::lessThan(const struct StraightFlush& other) const
+bool StraightFlush::operator<(const struct StraightFlush& other) const
 {
     return mHighCard < other.mHighCard;
 }
 
-bool StraightFlush::lessThan(const struct RoyalFlush& other) const
-{
-    return true;
-}
-
 //// RoyalFlush ////////////////////////////////////////////////////////////////
 
-bool RoyalFlush::lessThan(const struct HighCard& other) const
+bool RoyalFlush::operator==(const struct RoyalFlush &other) const 
 {
+    return mSuit == other.mSuit;
+}
+
+std::string RoyalFlush::toString() const
+{
+    std::ostringstream oss;
+    oss << "Royal flush of " << toStyleString(mSuit);
+    return oss.str();
+}
+
+bool RoyalFlush::operator==(const struct IHandValueType &other) const
+{
+    if(typeid(*this) == typeid(other)) {
+        auto otherDerrived = static_cast<const RoyalFlush&>(other);
+        return *this == otherDerrived;
+    }
     return false;
 }
 
-bool RoyalFlush::lessThan(const struct OnePair& other) const
+bool RoyalFlush::operator<(const struct IHandValueType& other) const
 {
-    return false;
+    const auto &thisTypeInfo = typeid(*this);
+    const auto &otherTypeInfo = typeid(other);
+    if(thisTypeInfo == otherTypeInfo) {
+        auto otherDerrived = static_cast<const RoyalFlush&>(other);
+        return *this < otherDerrived;
+    }
+
+    return sTypeInfos[thisTypeInfo.hash_code()] < sTypeInfos[otherTypeInfo.hash_code()];
 }
 
-bool RoyalFlush::lessThan(const struct TwoPair& other) const
-{
-    return false;
-}
-
-bool RoyalFlush::lessThan(const struct Tripps& other) const
-{
-    return false;
-}
-
-bool RoyalFlush::lessThan(const struct Straight& other) const
-{
-    return false;
-}
-
-bool RoyalFlush::lessThan(const struct Flush& other) const
-{
-    return false;
-}
-
-bool RoyalFlush::lessThan(const struct FullHouse& other) const
-{
-    return false;
-}
-
-bool RoyalFlush::lessThan(const struct Quads& other) const
-{
-    return false;
-}
-
-bool RoyalFlush::lessThan(const struct StraightFlush& other) const
-{
-    return false;
-}
-
-bool RoyalFlush::lessThan(const struct RoyalFlush& other) const
+bool RoyalFlush::operator<(const struct RoyalFlush& other) const
 {
     return false;
 }

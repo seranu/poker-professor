@@ -10,6 +10,11 @@ std::ostream& localToString(std::ostream& os, T const & value)
 }
 namespace std
 {
+std::ostream& operator << ( std::ostream& os, professor::IHandValueType const& value )
+{
+    return localToString(os, value);
+}
+
 std::ostream& operator << ( std::ostream& os, professor::HighCard const& value )
 {
     return localToString(os, value);
