@@ -1,6 +1,6 @@
 #pragma once
 #include <ostream>
-#include "poker_solver.hpp"
+#include "hand_value.hpp"
 
 namespace std 
 {
@@ -14,5 +14,4 @@ std::ostream& operator << ( std::ostream& os, professor::FullHouse const& value 
 std::ostream& operator << ( std::ostream& os, professor::Quads const& value );
 std::ostream& operator << ( std::ostream& os, professor::StraightFlush const& value );
 std::ostream& operator << ( std::ostream& os, professor::RoyalFlush const& value );
-
 }

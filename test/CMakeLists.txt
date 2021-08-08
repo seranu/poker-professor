@@ -7,6 +7,7 @@ set(CMAKE_CXX_STANDARD 17)
 
 add_executable(unittest
     card_test.cpp
+    hand_value_test.cpp
     test_main.cpp)
 
 target_link_libraries(unittest professor)

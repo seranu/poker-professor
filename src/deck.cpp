@@ -8,9 +8,11 @@ std::array<Card, Deck::kNumCards> getDefaultDeck()
 {
     int i = 0;
     std::array<Card, Deck::kNumCards> result;
-    for(CardRank rank = CardRank::Two; rank <= CardRank::Ace; rank = static_cast<CardRank>(static_cast<unsigned>(rank) + 1)) {
-        for(Suit suit = Suit::Clubs; suit <= Suit::Spade; suit = static_cast<Suit>(static_cast<unsigned>(suit) + 1)) {
-            result[i] = Card(rank, suit);
+    const auto &allRanks = getAllCardRanks();
+    const auto &allSuits = getAllSuits();
+    for(const auto &suit: allSuits) {
+        for(const auto &rank: allRanks) {
+            result[i++] = Card(rank, suit);
         }
     }
     return result;

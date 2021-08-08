@@ -160,6 +160,7 @@ std::string Card::toString() const
 Cards::Cards(const std::vector<Card> &cards)
 {
     for(const auto &card: cards) {
+        assert(0 == (mInternalRepresentation & card.internalRepresentation()));
         mInternalRepresentation |= card.internalRepresentation();
     }
 }
@@ -170,6 +171,13 @@ void Cards::add(Card card)
     mInternalRepresentation |= card.internalRepresentation();
 }
 
+void Cards::add(Cards cards)
+{
+    assert(!(mInternalRepresentation & cards.internalRepresentation()));
+    mInternalRepresentation |= cards.internalRepresentation();
+}
+
+
 void Cards::add(const std::vector<Card> &cards)
 {
     for(const auto &card: cards) {
@@ -177,6 +185,15 @@ void Cards::add(const std::vector<Card> &cards)
     }
 }
 
+bool Cards::operator< (const Cards& other) const
+{
+    return mInternalRepresentation < other.mInternalRepresentation;
+}
+
+bool Cards::operator==(const Cards& other) const
+{
+    return mInternalRepresentation == other.mInternalRepresentation;
+}
 
 std::optional<Cards> Cards::fromString(const std::string &cardsStr)
 {
@@ -206,12 +223,17 @@ std::string Cards::toString() const
     std::string result("[");
     const auto &allSuits = getAllSuits();
     const auto &allRanks = getAllCardRanks();
+    bool first = true;
     std::for_each(allSuits.begin(), allSuits.end(), [&] (const Suit &suit) {
-        uint64_t mask = kRankMask << static_cast<int>(suit);
-        uint16_t suitCards = mInternalRepresentation & mask;
+        uint64_t mask = kRankMask << static_cast<unsigned short>(suit);
+        uint16_t suitCards = (mInternalRepresentation & mask) >> static_cast<unsigned short>(suit);
         std::for_each(allRanks.begin(), allRanks.end(), [&] (const CardRank &rank) {
             if(suitCards & static_cast<uint16_t>(rank)) {
-                result += ::toString(rank) + ::toString(suit) + " ";
+                if(!first) {
+                    result += " ";
+                }
+                first = false;
+                result += ::toString(rank) + ::toString(suit);
             }
         });
     });
@@ -243,6 +265,7 @@ std::string CardRanks::toString() const
                 oss << " ";
             }
             oss << ::toString(rank);
+            first = false;
         }
     }
     return oss.str();

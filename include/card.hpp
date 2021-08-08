@@ -61,9 +61,9 @@ private:
 class Cards
 {
 public:
-    Cards(const std::vector<Card> &cards);
+    explicit Cards(const std::vector<Card> &cards);
 
-    Cards(uint64_t cards)
+    explicit Cards(uint64_t cards)
         : mInternalRepresentation(cards)
         {}
 
@@ -71,7 +71,10 @@ public:
     uint64_t internalRepresentation() const { return mInternalRepresentation; }
     uint16_t getSuit(Suit suit) const;
     void add(Card card);
+    void add(Cards cards);
     void add(const std::vector<Card> &cards);
+    bool operator< (const Cards& other) const;
+    bool operator==(const Cards& other) const;
     static std::optional<Cards> fromString(const std::string &cardsStr);
 
 private:
@@ -89,6 +92,9 @@ public:
     uint16_t internalRepresentation() const { return mInternalRepresentation; }
     bool operator==(const CardRanks &other) const {
         return mInternalRepresentation == other.mInternalRepresentation;
+    }
+    bool operator< (const CardRanks &other) const {
+        return mInternalRepresentation < other.mInternalRepresentation;
     }
 
     std::string toString() const;

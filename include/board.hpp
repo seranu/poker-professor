@@ -1,25 +1,20 @@
 #pragma once
-#include "types.hpp"
-#include <deck.hpp>
+#include "deck.hpp"
+#include "card.hpp"
+
 #include <optional>
 
 namespace professor
 {
-class Board
+struct Board
 {
-public:
-    Board(Deck deck)
-        : mDeck(deck)
-    {}
-
     void reset();
-    void drawFlop();
-    void drawTurn();
-    void drawRiver();
+    void drawFlop(Deck &deck);
+    void drawTurn(Deck &deck);
+    void drawRiver(Deck &deck);
+    Cards getBoard() const;
 
-private:
-    Deck mDeck;
-    std::optional<std::array<Card, 3>> mFlop;
+    std::optional<Cards> mFlop;
     std::optional<Card> mTurn;
     std::optional<Card> mRiver;
 };

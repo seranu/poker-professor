@@ -19,8 +19,12 @@ add_library(professor STATIC
     src/card.cpp
     src/poker_solver.cpp
     src/debug.cpp
+    src/hand_value.cpp
+    src/player.cpp
+    src/dealer.cpp
+    src/board.cpp
     )
 
-target_link_libraries(professor)
+link_libraries(professor)
 add_executable(poker-professor
     professor.cpp)
