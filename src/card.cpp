@@ -157,6 +157,18 @@ std::string Card::toString() const
     throw Exception("Unknown card");
 }
 
+void Cards::forEachCard(std::function<void(Card)> cb)
+{
+    const auto &allSuits = getAllSuits();
+    const auto &allRanks = getAllCardRanks();
+    for(const auto &suit: allSuits) {
+        for(const auto &rank: allRanks) {
+            cb(Card(rank, suit));
+        }
+    } 
+}
+
+
 Cards::Cards(const std::vector<Card> &cards)
 {
     for(const auto &card: cards) {

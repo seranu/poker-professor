@@ -6,6 +6,12 @@ if(MSVC)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++17")
 endif(MSVC)
 
+if(CMAKE_BUILD_TYPE STREQUAL "Release")
+    message(WARNING "build is release")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2 -Wall")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O2 -Wall")
+endif()
+
 enable_testing()
 add_subdirectory(test)
 
@@ -23,6 +29,8 @@ add_library(professor STATIC
     src/player.cpp
     src/dealer.cpp
     src/board.cpp
+    src/equity_calculator.cpp
+    src/log.cpp
     )
 
 link_libraries(professor)

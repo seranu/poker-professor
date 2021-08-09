@@ -15,6 +15,9 @@ public:
     template<class T, int N>
     void shuffle(std::array<T, N> &deck)
     { std::shuffle(deck.begin(), deck.end(), mGenerator); }
+    template<typename T>
+    void shuffle(std::vector<T> &deck)
+    { std::shuffle(deck.begin(), deck.end(), mGenerator); }
     static std::shared_ptr<Random> get()
     {
         static std::shared_ptr<Random> sInstance;

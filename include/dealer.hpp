@@ -19,7 +19,7 @@ public:
     // TODO handle side pot
     std::vector<double> evaluate();
 
-    void doOneRound();
+    std::vector<double> doOneRound();
 
 private:
     std::vector<Player> mPlayers;

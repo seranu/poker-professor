@@ -118,6 +118,7 @@ TEST_CASE("Hand value test")
                 *Cards::fromString("2c 9d Js Jc 9c Jd 6c"),
                 *Cards::fromString("Ah Kh Qh Jh Th 3d 8d")
             );
+            CHECK(!getStraightFlush(cards));
         }
     }
 

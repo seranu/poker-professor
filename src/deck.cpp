@@ -4,10 +4,10 @@
 
 using namespace professor;
 namespace {
-std::array<Card, Deck::kNumCards> getDefaultDeck()
+std::vector<Card> getDefaultDeck()
 {
     int i = 0;
-    std::array<Card, Deck::kNumCards> result;
+    std::vector<Card> result(kNumCards);
     const auto &allRanks = getAllCardRanks();
     const auto &allSuits = getAllSuits();
     for(const auto &suit: allSuits) {
@@ -17,36 +17,68 @@ std::array<Card, Deck::kNumCards> getDefaultDeck()
     }
     return result;
 }
-static std::array<Card, professor::Deck::kNumCards> sDefaultDeck = getDefaultDeck();
+static std::vector<Card> sDefaultDeck = getDefaultDeck();
 }
 namespace professor
 {
 
 Deck::Deck()
-: mRandom(Random::get())
+    : mCards(getDefaultDeck()) 
+    , mRandom(Random::get())
 {
     reset();
 }
 
+Deck::Deck(const std::vector<Card> &cards)
+    : mCards(cards)
+    , mRandom(Random::get())
+{
+    reset();
+}
+
+
 void Deck::reset()
 {
     mBurnIdx = 0;
-    mCards = getDefaultDeck();
     shuffle();
 }
 
 void Deck::shuffle()
 {
-    mRandom->shuffle<Card, kNumCards>(mCards);
+    mRandom->shuffle<>(mCards);
 }
 
 Card Deck::draw()
 {
-    auto drawIdx = mRandom->number(mBurnIdx + 1, kNumCards - 1);
-    std::swap(mCards[mBurnIdx], mCards[drawIdx]);
+    auto drawIdx = mRandom->number(mBurnIdx, mCards.size() - 1);
+    return burnCard(drawIdx);
+}
+
+Card Deck::burnCard(size_t idx)
+{
+    std::swap(mCards[mBurnIdx], mCards[idx]);
     mBurnIdx++;
     return mCards[mBurnIdx - 1];
 }
 
+void Deck::burnCard(Card card)
+{
+    for(decltype(mCards.size()) i = 0; i < mCards.size(); i++) {
+        if(mCards[i] == card) {
+            burnCard(i); 
+            break;
+        }
+    }
+}
 
+void Deck::burnCards(Cards cards)
+{
+    auto internalRep = cards.internalRepresentation();
+    int leadingZeros = 0;
+    while((leadingZeros = __builtin_clz(internalRep)) < 64) {
+        uint64_t card = 1 << (64 - leadingZeros);
+        internalRep = internalRep ^ card;
+        burnCard(Card(card));
+    }
+}
 }

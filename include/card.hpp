@@ -5,6 +5,7 @@
 #include <exception>
 #include <unordered_set>
 #include <optional>
+#include <functional>
 
 namespace professor
 {
@@ -48,8 +49,15 @@ public:
         : mInternalRepresentation(static_cast<uint64_t>(rank) << static_cast<unsigned short>(suit))
     {}
 
+    explicit Card(uint64_t internalRepresentation)
+        : mInternalRepresentation(internalRepresentation)
+    {
+    }
+
     Card(const Card& other) = default;
     Card &operator=(const Card& other) = default;
+    bool operator==(const Card& other) const
+        { return mInternalRepresentation == other.mInternalRepresentation; }
 
     std::string toString() const;
     uint64_t internalRepresentation() const { return mInternalRepresentation; }
@@ -76,6 +84,7 @@ public:
     bool operator< (const Cards& other) const;
     bool operator==(const Cards& other) const;
     static std::optional<Cards> fromString(const std::string &cardsStr);
+    static void forEachCard(std::function<void(Card)> cb);
 
 private:
     uint64_t mInternalRepresentation { 0 };

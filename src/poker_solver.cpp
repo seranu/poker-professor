@@ -21,12 +21,12 @@ std::vector<double> PokerSolver::solve(const std::vector<Player> &players, const
 
     std::vector<int> winners;
     bool isWinner = true;
-    PP_LOG_INFO("Board: %s", board.toString().c_str());
+    PP_LOG_DEBUG("Board: %s", board.toString().c_str());
 
     for(decltype(handValues.size()) i = 0; i < handValues.size(); i++) {
-        PP_LOG_INFO("Player %s: hand value: %s", players[handValues[i].second].toString().c_str(), handValues[i].first.getHandValueType().toString().c_str());
+        PP_LOG_DEBUG("Player %s: hand value: %s", players[handValues[i].second].toString().c_str(), handValues[i].first.getHandValueType().toString().c_str());
         if (isWinner) {
-            PP_LOG_INFO("Found winner: player %d", handValues[i].second);
+            PP_LOG_DEBUG("Found winner: player %d", handValues[i].second);
             winners.push_back(handValues[i].second);
             if(i != handValues.size() - 1 &&
                 handValues[i].first.getHandValueType() != handValues[i+1].first.getHandValueType()) 
@@ -37,7 +37,7 @@ std::vector<double> PokerSolver::solve(const std::vector<Player> &players, const
         }
     }
 
-    PP_LOG_INFO("Found %zu winners", winners.size());
+    PP_LOG_DEBUG("Found %zu winners", winners.size());
     const double equity = 100.0 / winners.size();
     for(decltype(winners.size()) i = 0; i < winners.size(); i++) {
         results[winners[i]] = equity;
