@@ -18,19 +18,22 @@ add_subdirectory(test)
 set(CMAKE_CXX_STANDARD 17)
 
 include_directories(poker-professor
-    include)
+    include
+    include/base
+    include/equity
+    include/utility)
 add_library(professor STATIC
-    src/deck.cpp
-    src/random.cpp
-    src/card.cpp
+    src/base/deck.cpp
+    src/base/random.cpp
+    src/base/card.cpp
+    src/base/hand_value.cpp
+    src/base/dealer.cpp
+    src/base/board.cpp
+    src/base/player.cpp
+    src/utility/debug.cpp
+    src/utility/log.cpp
+    src/equity/equity_calculator.cpp
     src/poker_solver.cpp
-    src/debug.cpp
-    src/hand_value.cpp
-    src/player.cpp
-    src/dealer.cpp
-    src/board.cpp
-    src/equity_calculator.cpp
-    src/log.cpp
     )
 
 link_libraries(professor)

@@ -1,6 +1,6 @@
 #include "catch.hpp"
-#include "debug.hpp"
-#include "hand_value.hpp"
+#include "utility/debug.hpp"
+#include "base/hand_value.hpp"
 
 using namespace professor;
 

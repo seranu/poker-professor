@@ -1,6 +1,9 @@
 project(unittest)
 include_directories(unittest
     ${TOP_DIR}/include
+    ${TOP_DIR}/include/base
+    ${TOP_DIR}/include/equity
+    ${TOP_DIR}/include/utility
     ${TOP_DIR}/third-party/catch2)
 
 set(CMAKE_CXX_STANDARD 17)

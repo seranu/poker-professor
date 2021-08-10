@@ -1,5 +1,5 @@
-#include "card.hpp"
 #include "catch.hpp"
+#include "base/card.hpp"
 
 using namespace professor;
 struct CardExpectation {

@@ -1,5 +1,5 @@
 #include "catch.hpp"
-#include "player.hpp"
+#include "base/player.hpp"
 #include "poker_solver.hpp"
 
 using namespace professor;
