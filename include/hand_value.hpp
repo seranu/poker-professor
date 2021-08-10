@@ -213,9 +213,6 @@ std::optional<Quads> getQuads(const Cards& cards);
 std::optional<StraightFlush> getStraightFlush(const Cards& cards);
 std::optional<RoyalFlush> getRoyalFlush(const Cards& cards);
 
-std::map<uint64_t, Suit, std::greater<uint64_t>>& getRoyalFlushesMap();
-std::map<uint64_t, Suit, std::greater<uint64_t>>& getStraightFlushesMap();
-
 class HandValue {
 public:
     HandValue(const Cards& cards);
@@ -227,5 +224,4 @@ public:
 private:
     std::unique_ptr<IHandValueType> mHandValueType;
 };
-
 }

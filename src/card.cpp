@@ -186,12 +186,6 @@ const std::vector<CardRank>& getAllCardRanks()
     return sAllCardRanks;
 }
 
-const std::unordered_set<CardRank>& getCardRankSet()
-{
-    static const std::unordered_set<CardRank> sCardRankMap(getAllCardRanks().begin(), getAllCardRanks().end());
-    return sCardRankMap;
-}
-
 std::string Card::toString() const
 {
     for (Suit suit : getAllSuits()) {

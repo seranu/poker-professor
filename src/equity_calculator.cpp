@@ -31,7 +31,6 @@ EquityResult EquityCalculator::calculateEquity(Cards heroHand, Cards villanHand,
     std::vector<double> totalEquities(players.size(), 0.0);
     for (auto i = 0; i < numRuns; i++) {
         deck.reset();
-        PP_LOG_DEBUG("Run %d", i);
         Board board;
         board.drawFlop(deck);
         board.drawTurn(deck);

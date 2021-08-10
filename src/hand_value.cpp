@@ -72,6 +72,7 @@ uint16_t firstSetBit(uint16_t number)
     auto leadingZeros = __builtin_clz(number) - 16;
     return 1 << (15 - leadingZeros);
 }
+
 CardRank highCard(uint16_t cards)
 {
     return static_cast<CardRank>(firstSetBit(cards));
@@ -87,68 +88,9 @@ uint16_t getSameCards(const Cards& cards)
     return (spades & hearts) | (spades & clubs) | (spades & diamonds)
         | (hearts & clubs) | (hearts & diamonds) | (clubs & diamonds);
 }
-std::map<uint64_t, Suit, std::greater<uint64_t>> generateRoyalFlushesMap()
-{
-    decltype(generateRoyalFlushesMap()) result;
-    for (auto suit : getAllSuits()) {
-        uint64_t cards = static_cast<uint64_t>(aceHighStraight()) << static_cast<unsigned short>(suit);
-        result[cards] = suit;
-    }
-    return result;
-}
-
-std::map<uint64_t, Suit, std::greater<uint64_t>> generateStraightFlushesMap()
-{
-    decltype(generateStraightFlushesMap()) result;
-    for (auto suit : getAllSuits()) {
-        uint16_t cardRanks = aceHighStraight();
-        // Exclude royal flush.
-        cardRanks = cardRanks >> 1;
-        while (__builtin_popcount(cardRanks) == 5) {
-            uint64_t cards = static_cast<uint64_t>(cardRanks) << static_cast<unsigned short>(suit);
-            result[cards] = suit;
-            cardRanks >>= 1;
-        }
-
-        // Add wheel straight;
-        uint64_t suitedWheelStraight = static_cast<uint64_t>(wheelStraight()) << static_cast<unsigned short>(suit);
-        result[suitedWheelStraight] = suit;
-    }
-    return result;
-}
-
-std::set<uint16_t, std::greater<uint64_t>> generateStraightMap()
-{
-    decltype(generateStraightMap()) result;
-    uint16_t cardRanks = aceHighStraight();
-    while (__builtin_popcount(cardRanks) == 5) {
-        result.insert(cardRanks);
-        cardRanks >>= 1;
-    }
-    result.insert(wheelStraight());
-    return result;
-}
 }
 
 namespace professor {
-
-std::map<uint64_t, Suit, std::greater<uint64_t>>& getRoyalFlushesMap()
-{
-    static std::map<uint64_t, Suit, std::greater<uint64_t>> sRoyalFlushes = generateRoyalFlushesMap();
-    return sRoyalFlushes;
-}
-
-std::map<uint64_t, Suit, std::greater<uint64_t>>& getStraightFlushesMap()
-{
-    static std::map<uint64_t, Suit, std::greater<uint64_t>> sStraightFlushes = generateStraightFlushesMap();
-    return sStraightFlushes;
-}
-
-std::set<uint16_t, std::greater<uint64_t>>& getStraightMap()
-{
-    static std::set<uint16_t, std::greater<uint64_t>> sStraights = generateStraightMap();
-    return sStraights;
-}
 
 uint16_t getFirstNSetBits(uint16_t number, unsigned short count)
 {

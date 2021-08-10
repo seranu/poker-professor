@@ -36,7 +36,6 @@ std::string toStyleString(Suit suit);
 
 const std::vector<Suit>& getAllSuits();
 const std::vector<CardRank>& getAllCardRanks();
-const std::unordered_set<CardRank>& getCardRankSet();
 
 class Card {
 public:
