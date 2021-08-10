@@ -1,18 +1,17 @@
 #include "equity_calculator.hpp"
-#include "poker_solver.hpp"
-#include "deck.hpp"
-#include "player.hpp"
 #include "board.hpp"
+#include "deck.hpp"
 #include "log.hpp"
+#include "player.hpp"
+#include "poker_solver.hpp"
 #include <algorithm>
 
-namespace professor
-{
+namespace professor {
 Deck getDeckWithoutCards(Cards cards)
 {
     std::vector<Card> result;
-    Cards::forEachCard([&](Card card){
-        if(!(card.internalRepresentation() & cards.internalRepresentation())) {
+    Cards::forEachCard([&](Card card) {
+        if (!(card.internalRepresentation() & cards.internalRepresentation())) {
             result.emplace_back(std::move(card));
         }
     });
@@ -30,20 +29,20 @@ EquityResult EquityCalculator::calculateEquity(Cards heroHand, Cards villanHand,
     PokerSolver solver;
     auto deck = getDeckWithoutCards(Cards(heroHand.internalRepresentation() | villanHand.internalRepresentation()));
     std::vector<double> totalEquities(players.size(), 0.0);
-    for(auto i = 0; i < numRuns; i++) {
-        deck.reset(); 
+    for (auto i = 0; i < numRuns; i++) {
+        deck.reset();
         PP_LOG_DEBUG("Run %d", i);
         Board board;
         board.drawFlop(deck);
         board.drawTurn(deck);
         board.drawRiver(deck);
         auto results = solver.solve(players, board.getBoard());
-        for(decltype(results.size()) i = 0; i < results.size(); i++) {
-            totalEquities[i] += results[i]; 
+        for (decltype(results.size()) i = 0; i < results.size(); i++) {
+            totalEquities[i] += results[i];
         }
     }
 
-    for(auto &value: totalEquities) {
+    for (auto& value : totalEquities) {
         value = value / numRuns;
     }
 

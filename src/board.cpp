@@ -1,7 +1,6 @@
 #include "board.hpp"
 
-namespace professor
-{
+namespace professor {
 void Board::reset()
 {
     mFlop.reset();
@@ -9,17 +8,17 @@ void Board::reset()
     mRiver.reset();
 }
 
-void Board::drawFlop(Deck &deck)
+void Board::drawFlop(Deck& deck)
 {
     mFlop = Cards({ deck.draw(), deck.draw(), deck.draw() });
 }
 
-void Board::drawTurn(Deck &deck)
+void Board::drawTurn(Deck& deck)
 {
     mTurn = deck.draw();
 }
 
-void Board::drawRiver(Deck &deck)
+void Board::drawRiver(Deck& deck)
 {
     mRiver = deck.draw();
 }

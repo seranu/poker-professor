@@ -8,10 +8,10 @@ std::vector<Card> getDefaultDeck()
 {
     int i = 0;
     std::vector<Card> result(kNumCards);
-    const auto &allRanks = getAllCardRanks();
-    const auto &allSuits = getAllSuits();
-    for(const auto &suit: allSuits) {
-        for(const auto &rank: allRanks) {
+    const auto& allRanks = getAllCardRanks();
+    const auto& allSuits = getAllSuits();
+    for (const auto& suit : allSuits) {
+        for (const auto& rank : allRanks) {
             result[i++] = Card(rank, suit);
         }
     }
@@ -19,23 +19,21 @@ std::vector<Card> getDefaultDeck()
 }
 static std::vector<Card> sDefaultDeck = getDefaultDeck();
 }
-namespace professor
-{
+namespace professor {
 
 Deck::Deck()
-    : mCards(getDefaultDeck()) 
+    : mCards(getDefaultDeck())
     , mRandom(Random::get())
 {
     reset();
 }
 
-Deck::Deck(const std::vector<Card> &cards)
+Deck::Deck(const std::vector<Card>& cards)
     : mCards(cards)
     , mRandom(Random::get())
 {
     reset();
 }
-
 
 void Deck::reset()
 {
@@ -63,9 +61,9 @@ Card Deck::burnCard(size_t idx)
 
 void Deck::burnCard(Card card)
 {
-    for(decltype(mCards.size()) i = 0; i < mCards.size(); i++) {
-        if(mCards[i] == card) {
-            burnCard(i); 
+    for (decltype(mCards.size()) i = 0; i < mCards.size(); i++) {
+        if (mCards[i] == card) {
+            burnCard(i);
             break;
         }
     }
@@ -75,7 +73,7 @@ void Deck::burnCards(Cards cards)
 {
     auto internalRep = cards.internalRepresentation();
     int leadingZeros = 0;
-    while((leadingZeros = __builtin_clz(internalRep)) < 64) {
+    while ((leadingZeros = __builtin_clz(internalRep)) < 64) {
         uint64_t card = 1 << (64 - leadingZeros);
         internalRep = internalRep ^ card;
         burnCard(Card(card));

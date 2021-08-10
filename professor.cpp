@@ -1,8 +1,8 @@
+#include "card.hpp"
 #include "dealer.hpp"
 #include "equity_calculator.hpp"
 #include "hand_value.hpp"
 #include "log.hpp"
-#include "card.hpp"
 #include <iostream>
 
 using namespace professor;
@@ -40,11 +40,11 @@ void do_equity()
 
 std::vector<Card> allCards()
 {
-    const auto &allSuits = getAllSuits();
-    const auto &allRanks = getAllCardRanks();
+    const auto& allSuits = getAllSuits();
+    const auto& allRanks = getAllCardRanks();
     decltype(allCards()) result;
-    for(auto &suit: allSuits) {
-        for(auto &rank: allRanks) {
+    for (auto& suit : allSuits) {
+        for (auto& rank : allRanks) {
             result.emplace_back(rank, suit);
         }
     }
@@ -56,25 +56,25 @@ void benchmark_evaluator()
 
     SCOPE_TIMER("Benchmark evaluator");
     int i = 0;
-    while(i < 6000000) {
-        for(int a = 0; a < 48; a++) {
-          for(int b = a + 1; b < 49; b++) {
-            for(int c = b + 1; c < 50; c++) {
-              for(int d = c + 1; d < 51; d++) {
-                for(int e = d + 1; e < 52; e++) {
-                    HandValue::evaluateHand(Cards( cards[a].internalRepresentation()
-                                    | cards[b].internalRepresentation()
-                                    | cards[c].internalRepresentation()
-                                    | cards[d].internalRepresentation()
-                                    | cards[e].internalRepresentation()));
-                  i++;
-                  if (i == 6000000) {
-                    return;
-                  }
+    while (i < 6000000) {
+        for (int a = 0; a < 48; a++) {
+            for (int b = a + 1; b < 49; b++) {
+                for (int c = b + 1; c < 50; c++) {
+                    for (int d = c + 1; d < 51; d++) {
+                        for (int e = d + 1; e < 52; e++) {
+                            HandValue::evaluateHand(Cards(cards[a].internalRepresentation()
+                                | cards[b].internalRepresentation()
+                                | cards[c].internalRepresentation()
+                                | cards[d].internalRepresentation()
+                                | cards[e].internalRepresentation()));
+                            i++;
+                            if (i == 6000000) {
+                                return;
+                            }
+                        }
+                    }
                 }
-              }
             }
-          }
         }
     }
 }
@@ -84,7 +84,7 @@ int main(int argc, char* argv[])
 
     do_equity();
     // benchmark_evaluator();
-/*
+    /*
     const int kExit = 3, kContinue = 1;
     int option = kContinue;
     do
@@ -104,6 +104,6 @@ int main(int argc, char* argv[])
             option = kExit;
         }
     } while (option != kExit);
-*/    
+*/
     return 0;
 }

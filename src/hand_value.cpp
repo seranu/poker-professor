@@ -1,52 +1,43 @@
 #include "hand_value.hpp"
 #include "exception.hpp"
 
-#include <sstream>
-#include <set>
 #include <cassert>
+#include <set>
+#include <sstream>
 
-namespace
-{
+namespace {
 using namespace professor;
 
 std::unordered_map<size_t, int> sTypeInfos = {
-    { typeid(HighCard).hash_code(),      0 },
-    { typeid(OnePair).hash_code(),       1 },
-    { typeid(TwoPair).hash_code(),       2 },
-    { typeid(Tripps).hash_code(),        3 },
-    { typeid(Straight).hash_code(),      4 },
-    { typeid(Flush).hash_code(),         5 },
-    { typeid(FullHouse).hash_code(),     6 },
-    { typeid(Quads).hash_code(),         7 },
+    { typeid(HighCard).hash_code(), 0 },
+    { typeid(OnePair).hash_code(), 1 },
+    { typeid(TwoPair).hash_code(), 2 },
+    { typeid(Tripps).hash_code(), 3 },
+    { typeid(Straight).hash_code(), 4 },
+    { typeid(Flush).hash_code(), 5 },
+    { typeid(FullHouse).hash_code(), 6 },
+    { typeid(Quads).hash_code(), 7 },
     { typeid(StraightFlush).hash_code(), 8 },
-    { typeid(RoyalFlush).hash_code(),    9 }
+    { typeid(RoyalFlush).hash_code(), 9 }
 };
 
 uint16_t aceHighStraight()
 {
-    return static_cast<uint16_t>(CardRank::Ace) | 
-           static_cast<uint16_t>(CardRank::King) | 
-           static_cast<uint16_t>(CardRank::Queen) | 
-           static_cast<uint16_t>(CardRank::Jack) | 
-           static_cast<uint16_t>(CardRank::Ten);
+    return static_cast<uint16_t>(CardRank::Ace) | static_cast<uint16_t>(CardRank::King) | static_cast<uint16_t>(CardRank::Queen) | static_cast<uint16_t>(CardRank::Jack) | static_cast<uint16_t>(CardRank::Ten);
 }
 
 uint16_t wheelStraight()
 {
-     return static_cast<uint16_t>(CardRank::Ace) | 
-           static_cast<uint16_t>(CardRank::Two) | 
-           static_cast<uint16_t>(CardRank::Three) | 
-           static_cast<uint16_t>(CardRank::Four) | 
-           static_cast<uint16_t>(CardRank::Five);
+    return static_cast<uint16_t>(CardRank::Ace) | static_cast<uint16_t>(CardRank::Two) | static_cast<uint16_t>(CardRank::Three) | static_cast<uint16_t>(CardRank::Four) | static_cast<uint16_t>(CardRank::Five);
 }
 
 uint16_t andSuits(const Cards& cards)
 {
     auto spades = cards.getSuit(Suit::Spade);
     auto hearts = cards.getSuit(Suit::Heart);
-    auto clubs  = cards.getSuit(Suit::Clubs);
-    auto diamonds = cards.getSuit(Suit::Diamond); 
-   
+    auto clubs = cards.getSuit(Suit::Clubs);
+    auto diamonds = cards.getSuit(Suit::Diamond);
+
     return spades & hearts & clubs & diamonds;
 }
 
@@ -54,9 +45,9 @@ uint16_t orSuits(const Cards& cards)
 {
     auto spades = cards.getSuit(Suit::Spade);
     auto hearts = cards.getSuit(Suit::Heart);
-    auto clubs  = cards.getSuit(Suit::Clubs);
-    auto diamonds = cards.getSuit(Suit::Diamond); 
-   
+    auto clubs = cards.getSuit(Suit::Clubs);
+    auto diamonds = cards.getSuit(Suit::Diamond);
+
     return spades | hearts | clubs | diamonds;
 }
 
@@ -64,9 +55,9 @@ uint16_t xorSuits(const Cards& cards)
 {
     auto spades = cards.getSuit(Suit::Spade);
     auto hearts = cards.getSuit(Suit::Heart);
-    auto clubs  = cards.getSuit(Suit::Clubs);
-    auto diamonds = cards.getSuit(Suit::Diamond); 
-   
+    auto clubs = cards.getSuit(Suit::Clubs);
+    auto diamonds = cards.getSuit(Suit::Diamond);
+
     return spades ^ hearts ^ clubs ^ diamonds;
 }
 
@@ -86,22 +77,20 @@ CardRank highCard(uint16_t cards)
     return static_cast<CardRank>(firstSetBit(cards));
 }
 
-uint16_t getSameCards(const Cards &cards)
+uint16_t getSameCards(const Cards& cards)
 {
     auto spades = cards.getSuit(Suit::Spade);
     auto hearts = cards.getSuit(Suit::Heart);
-    auto clubs  = cards.getSuit(Suit::Clubs);
-    auto diamonds = cards.getSuit(Suit::Diamond); 
+    auto clubs = cards.getSuit(Suit::Clubs);
+    auto diamonds = cards.getSuit(Suit::Diamond);
 
     return (spades & hearts) | (spades & clubs) | (spades & diamonds)
         | (hearts & clubs) | (hearts & diamonds) | (clubs & diamonds);
-
 }
 std::map<uint64_t, Suit, std::greater<uint64_t>> generateRoyalFlushesMap()
 {
     decltype(generateRoyalFlushesMap()) result;
-    for(auto suit: getAllSuits())
-    {
+    for (auto suit : getAllSuits()) {
         uint64_t cards = static_cast<uint64_t>(aceHighStraight()) << static_cast<unsigned short>(suit);
         result[cards] = suit;
     }
@@ -111,12 +100,11 @@ std::map<uint64_t, Suit, std::greater<uint64_t>> generateRoyalFlushesMap()
 std::map<uint64_t, Suit, std::greater<uint64_t>> generateStraightFlushesMap()
 {
     decltype(generateStraightFlushesMap()) result;
-    for(auto suit: getAllSuits()) 
-    {
-        uint16_t cardRanks = aceHighStraight(); 
+    for (auto suit : getAllSuits()) {
+        uint16_t cardRanks = aceHighStraight();
         // Exclude royal flush.
         cardRanks = cardRanks >> 1;
-        while(__builtin_popcount(cardRanks) == 5) {
+        while (__builtin_popcount(cardRanks) == 5) {
             uint64_t cards = static_cast<uint64_t>(cardRanks) << static_cast<unsigned short>(suit);
             result[cards] = suit;
             cardRanks >>= 1;
@@ -133,7 +121,7 @@ std::set<uint16_t, std::greater<uint64_t>> generateStraightMap()
 {
     decltype(generateStraightMap()) result;
     uint16_t cardRanks = aceHighStraight();
-    while(__builtin_popcount(cardRanks) == 5) {
+    while (__builtin_popcount(cardRanks) == 5) {
         result.insert(cardRanks);
         cardRanks >>= 1;
     }
@@ -142,22 +130,21 @@ std::set<uint16_t, std::greater<uint64_t>> generateStraightMap()
 }
 }
 
-namespace professor
-{
+namespace professor {
 
-std::map<uint64_t, Suit, std::greater<uint64_t>> &getRoyalFlushesMap()
+std::map<uint64_t, Suit, std::greater<uint64_t>>& getRoyalFlushesMap()
 {
     static std::map<uint64_t, Suit, std::greater<uint64_t>> sRoyalFlushes = generateRoyalFlushesMap();
     return sRoyalFlushes;
 }
 
-std::map<uint64_t, Suit, std::greater<uint64_t>> &getStraightFlushesMap()
+std::map<uint64_t, Suit, std::greater<uint64_t>>& getStraightFlushesMap()
 {
     static std::map<uint64_t, Suit, std::greater<uint64_t>> sStraightFlushes = generateStraightFlushesMap();
     return sStraightFlushes;
 }
 
-std::set<uint16_t, std::greater<uint64_t>> &getStraightMap()
+std::set<uint16_t, std::greater<uint64_t>>& getStraightMap()
 {
     static std::set<uint16_t, std::greater<uint64_t>> sStraights = generateStraightMap();
     return sStraights;
@@ -167,7 +154,7 @@ uint16_t getFirstNSetBits(uint16_t number, unsigned short count)
 {
     assert(count < sizeof(number) * 8);
     uint16_t result = 0;
-    for(decltype(count) i = 0; i < count; i++) {
+    for (decltype(count) i = 0; i < count; i++) {
         auto nextBit = firstSetBit(number);
         assert(nextBit);
         result |= nextBit;
@@ -176,16 +163,16 @@ uint16_t getFirstNSetBits(uint16_t number, unsigned short count)
     return result;
 }
 
-std::optional<HighCard> getHighCard(const Cards &cards)
+std::optional<HighCard> getHighCard(const Cards& cards)
 {
     auto distinctCards = orSuits(cards);
-    return { HighCard { getFirstNSetBits(distinctCards, 5)} };
+    return { HighCard { getFirstNSetBits(distinctCards, 5) } };
 }
 
-std::optional<OnePair> getOnePair(const Cards &cards)
+std::optional<OnePair> getOnePair(const Cards& cards)
 {
     auto sameCards = getSameCards(cards);
-    if(__builtin_popcount(sameCards) != 1) {
+    if (__builtin_popcount(sameCards) != 1) {
         return {};
     }
 
@@ -193,10 +180,10 @@ std::optional<OnePair> getOnePair(const Cards &cards)
     return { OnePair { static_cast<CardRank>(sameCards), kickers } };
 }
 
-std::optional<TwoPair> getTwoPair(const Cards &cards)
+std::optional<TwoPair> getTwoPair(const Cards& cards)
 {
     auto sameCards = getSameCards(cards);
-    if(__builtin_popcount(sameCards) < 2) {
+    if (__builtin_popcount(sameCards) < 2) {
         return {};
     }
     auto firstPair = highCard(sameCards);
@@ -206,46 +193,46 @@ std::optional<TwoPair> getTwoPair(const Cards &cards)
     return { TwoPair { firstPair, secondPair, kicker } };
 }
 
-std::optional<Tripps> getTripps(const Cards &cards)
+std::optional<Tripps> getTripps(const Cards& cards)
 {
     auto sameCards = getSameCards(cards);
     auto distinctCards = orSuits(cards);
     auto potentialTripps = static_cast<uint16_t>(sameCards & xorSuits(cards));
-    if(potentialTripps == 0) {
+    if (potentialTripps == 0) {
         return {};
     }
 
     auto kickers = getFirstNSetBits(potentialTripps ^ distinctCards, 2);
-    return { Tripps {highCard(potentialTripps), CardRanks(kickers)}};
+    return { Tripps { highCard(potentialTripps), CardRanks(kickers) } };
 }
 
-std::optional<Straight> getStraight(const Cards &cards)
+std::optional<Straight> getStraight(const Cards& cards)
 {
     const auto orCards = orSuits(cards);
     uint16_t straight = aceHighStraight();
-    const auto &wStraight = wheelStraight();
-    while(__builtin_popcount(straight) == 5) {
-        if((orCards & straight) == straight) {
+    const auto& wStraight = wheelStraight();
+    while (__builtin_popcount(straight) == 5) {
+        if ((orCards & straight) == straight) {
             return { Straight { highCard(straight) } };
         }
         straight >>= 1;
     }
 
-    if((orCards & wStraight) == wStraight) {
+    if ((orCards & wStraight) == wStraight) {
         return { Straight { CardRank::Five } };
     }
     return {};
 }
 
-#define CHECK_RETURN_FLUSH(cards, suit)                                              \
-    {                                                                                \
-        const auto &suitCards = cards.getSuit(suit);                                 \
-        if (__builtin_popcount(suitCards) >= 5) {                                    \
-            return { Flush { CardRanks(getFirstNSetBits(suitCards, 5)), suit } };    \
-        }                                                                            \
+#define CHECK_RETURN_FLUSH(cards, suit)                                           \
+    {                                                                             \
+        const auto& suitCards = cards.getSuit(suit);                              \
+        if (__builtin_popcount(suitCards) >= 5) {                                 \
+            return { Flush { CardRanks(getFirstNSetBits(suitCards, 5)), suit } }; \
+        }                                                                         \
     }
 
-std::optional<Flush> getFlush(const Cards &cards)
+std::optional<Flush> getFlush(const Cards& cards)
 {
     CHECK_RETURN_FLUSH(cards, Suit::Spade);
     CHECK_RETURN_FLUSH(cards, Suit::Diamond);
@@ -254,8 +241,7 @@ std::optional<Flush> getFlush(const Cards &cards)
     return {};
 }
 
-
-std::optional<FullHouse> getFullHouse(const Cards &cards)
+std::optional<FullHouse> getFullHouse(const Cards& cards)
 {
     auto sameCards = getSameCards(cards);
     if (__builtin_popcount(sameCards) < 2) {
@@ -263,57 +249,56 @@ std::optional<FullHouse> getFullHouse(const Cards &cards)
     }
 
     auto potentialTripps = static_cast<uint16_t>(sameCards & xorSuits(cards));
-    if(potentialTripps == 0) {
+    if (potentialTripps == 0) {
         return {};
     }
 
     auto numTripps = __builtin_popcount(potentialTripps);
-    if(numTripps == 1) {
+    if (numTripps == 1) {
         auto potentialPairs = static_cast<uint16_t>(sameCards ^ potentialTripps);
-        if(potentialPairs == 0) {
+        if (potentialPairs == 0) {
             return {};
         }
 
         auto highestPair = highCard(potentialPairs);
-        return { FullHouse { static_cast<CardRank>(potentialTripps), static_cast<CardRank>(highestPair)} };
+        return { FullHouse { static_cast<CardRank>(potentialTripps), static_cast<CardRank>(highestPair) } };
     }
 
-    if(numTripps == 2) {
+    if (numTripps == 2) {
         auto topTripps = highCard(potentialTripps);
-        return { FullHouse { topTripps, static_cast<CardRank>(potentialTripps ^ static_cast<uint16_t>(topTripps))} };
+        return { FullHouse { topTripps, static_cast<CardRank>(potentialTripps ^ static_cast<uint16_t>(topTripps)) } };
     }
 
     throw Exception("Logic error");
 }
 
-std::optional<Quads> getQuads(const Cards &cards)
+std::optional<Quads> getQuads(const Cards& cards)
 {
 
     uint16_t potentialQuad = andSuits(cards);
-    if(potentialQuad) {
+    if (potentialQuad) {
         return { Quads { static_cast<CardRank>(potentialQuad), highCard(xorSuits(cards)) } };
     }
     return {};
 }
 
-
-#define CHECK_RETURN_STRAIGHT_FLUSH(cards, suit)                        \
-    {                                                                   \
-        const auto suitCards = cards.getSuit(suit);                     \
-        uint16_t straight = aceHighStraight() >> 1;                     \
-        while(__builtin_popcount(straight) == 5) {                      \
-            if((suitCards & straight) == straight) {                    \
-                return { StraightFlush { highCard(straight), suit } };  \
-            }                                                           \
-            straight >>= 1;                                             \
-        }                                                               \
-        if((suitCards & wStraight) == wStraight) {                      \
-            return { StraightFlush { CardRank::Five, suit } };          \
-        }                                                               \
+#define CHECK_RETURN_STRAIGHT_FLUSH(cards, suit)                       \
+    {                                                                  \
+        const auto suitCards = cards.getSuit(suit);                    \
+        uint16_t straight = aceHighStraight() >> 1;                    \
+        while (__builtin_popcount(straight) == 5) {                    \
+            if ((suitCards & straight) == straight) {                  \
+                return { StraightFlush { highCard(straight), suit } }; \
+            }                                                          \
+            straight >>= 1;                                            \
+        }                                                              \
+        if ((suitCards & wStraight) == wStraight) {                    \
+            return { StraightFlush { CardRank::Five, suit } };         \
+        }                                                              \
     }
-std::optional<StraightFlush> getStraightFlush(const Cards &cards)
+std::optional<StraightFlush> getStraightFlush(const Cards& cards)
 {
-    const auto &wStraight = wheelStraight();
+    const auto& wStraight = wheelStraight();
     CHECK_RETURN_STRAIGHT_FLUSH(cards, Suit::Spade);
     CHECK_RETURN_STRAIGHT_FLUSH(cards, Suit::Diamond);
     CHECK_RETURN_STRAIGHT_FLUSH(cards, Suit::Heart);
@@ -321,15 +306,15 @@ std::optional<StraightFlush> getStraightFlush(const Cards &cards)
     return {};
 }
 
-#define CHECK_RETURN_ROYAL_FLUSH(suit)                                                                        \
-    {                                                                                                         \
-        const auto &suitRoyalFlush = static_cast<uint64_t>(royalFlush) << static_cast<unsigned short>(suit);  \
-        if((cardsInt & suitRoyalFlush) == suitRoyalFlush) {                                                   \
-            return { RoyalFlush { suit } };                                                                   \
-        }                                                                                                     \
+#define CHECK_RETURN_ROYAL_FLUSH(suit)                                                                       \
+    {                                                                                                        \
+        const auto& suitRoyalFlush = static_cast<uint64_t>(royalFlush) << static_cast<unsigned short>(suit); \
+        if ((cardsInt & suitRoyalFlush) == suitRoyalFlush) {                                                 \
+            return { RoyalFlush { suit } };                                                                  \
+        }                                                                                                    \
     }
 
-std::optional<RoyalFlush> getRoyalFlush(const Cards &cards)
+std::optional<RoyalFlush> getRoyalFlush(const Cards& cards)
 {
     const uint16_t royalFlush = aceHighStraight();
     const uint64_t cardsInt = cards.internalRepresentation();
@@ -344,9 +329,9 @@ std::optional<RoyalFlush> getRoyalFlush(const Cards &cards)
 
 bool HighCard::operator<(const struct IHandValueType& other) const
 {
-    const auto &thisTypeInfo = typeid(*this);
-    const auto &otherTypeInfo = typeid(other);
-    if(thisTypeInfo == otherTypeInfo) {
+    const auto& thisTypeInfo = typeid(*this);
+    const auto& otherTypeInfo = typeid(other);
+    if (thisTypeInfo == otherTypeInfo) {
         auto otherDerrived = static_cast<const HighCard&>(other);
         return *this < otherDerrived;
     }
@@ -361,14 +346,14 @@ bool HighCard::operator<(const struct HighCard& other) const
 
 bool HighCard::operator==(const struct IHandValueType& other) const
 {
-    if(typeid(other) == typeid(*this)) {
+    if (typeid(other) == typeid(*this)) {
         auto otherDerrived = static_cast<const HighCard&>(other);
         return *this == otherDerrived;
-    }   
+    }
     return false;
 }
 
-bool HighCard::operator==(const struct HighCard& other) const 
+bool HighCard::operator==(const struct HighCard& other) const
 {
     return mCards == other.mCards;
 }
@@ -382,7 +367,7 @@ std::string HighCard::toString() const
 
 //// OnePair ///////////////////////////////////////////////////////////////////
 
-bool OnePair::operator==(const struct OnePair &other) const
+bool OnePair::operator==(const struct OnePair& other) const
 {
     return mPair == other.mPair && mKickers == other.mKickers;
 }
@@ -396,9 +381,9 @@ std::string OnePair::toString() const
 
 bool OnePair::operator<(const struct IHandValueType& other) const
 {
-    const auto &thisTypeInfo = typeid(*this);
-    const auto &otherTypeInfo = typeid(other);
-    if(thisTypeInfo == otherTypeInfo) {
+    const auto& thisTypeInfo = typeid(*this);
+    const auto& otherTypeInfo = typeid(other);
+    if (thisTypeInfo == otherTypeInfo) {
         auto otherDerrived = static_cast<const OnePair&>(other);
         return *this < otherDerrived;
     }
@@ -406,7 +391,7 @@ bool OnePair::operator<(const struct IHandValueType& other) const
     return sTypeInfos[thisTypeInfo.hash_code()] < sTypeInfos[otherTypeInfo.hash_code()];
 }
 
-bool OnePair::operator<(const struct OnePair &other) const
+bool OnePair::operator<(const struct OnePair& other) const
 {
     if (mPair == other.mPair) {
         return mKickers < other.mKickers;
@@ -416,10 +401,10 @@ bool OnePair::operator<(const struct OnePair &other) const
 
 bool OnePair::operator==(const struct IHandValueType& other) const
 {
-    if(typeid(other) == typeid(*this)) {
+    if (typeid(other) == typeid(*this)) {
         auto otherDerrived = static_cast<const OnePair&>(other);
         return *this == otherDerrived;
-    }   
+    }
     return false;
 }
 
@@ -427,14 +412,14 @@ bool OnePair::operator==(const struct IHandValueType& other) const
 
 bool TwoPair::operator==(const struct IHandValueType& other) const
 {
-    if(typeid(other) == typeid(*this)) {
+    if (typeid(other) == typeid(*this)) {
         auto otherDerrived = static_cast<const TwoPair&>(other);
         return *this == otherDerrived;
-    }   
+    }
     return false;
 }
 
-bool TwoPair::operator==(const struct TwoPair &other) const 
+bool TwoPair::operator==(const struct TwoPair& other) const
 {
     return mTopPair == other.mTopPair && mBottomPair == other.mBottomPair && mKicker == other.mKicker;
 }
@@ -448,9 +433,9 @@ std::string TwoPair::toString() const
 
 bool TwoPair::operator<(const struct IHandValueType& other) const
 {
-    const auto &thisTypeInfo = typeid(*this);
-    const auto &otherTypeInfo = typeid(other);
-    if(thisTypeInfo == otherTypeInfo) {
+    const auto& thisTypeInfo = typeid(*this);
+    const auto& otherTypeInfo = typeid(other);
+    if (thisTypeInfo == otherTypeInfo) {
         auto otherDerrived = static_cast<const TwoPair&>(other);
         return *this < otherDerrived;
     }
@@ -458,10 +443,10 @@ bool TwoPair::operator<(const struct IHandValueType& other) const
     return sTypeInfos[thisTypeInfo.hash_code()] < sTypeInfos[otherTypeInfo.hash_code()];
 }
 
-bool TwoPair::operator<(const struct TwoPair& other) const 
+bool TwoPair::operator<(const struct TwoPair& other) const
 {
     if (mTopPair == other.mTopPair) {
-        if(mBottomPair == other.mBottomPair) {
+        if (mBottomPair == other.mBottomPair) {
             return mKicker < other.mKicker;
         }
 
@@ -472,16 +457,16 @@ bool TwoPair::operator<(const struct TwoPair& other) const
 
 //// Tripps ///////////////////////////////////////////////////////////////////
 
-bool Tripps::operator==(const struct IHandValueType &other) const
+bool Tripps::operator==(const struct IHandValueType& other) const
 {
-    if(typeid(*this) == typeid(other)) {
+    if (typeid(*this) == typeid(other)) {
         auto otherDerrived = static_cast<const Tripps&>(other);
         return *this == otherDerrived;
     }
     return false;
 }
 
-bool Tripps::operator==(const struct Tripps &other) const
+bool Tripps::operator==(const struct Tripps& other) const
 {
     return mTripps == other.mTripps && mKickers == other.mKickers;
 }
@@ -495,9 +480,9 @@ std::string Tripps::toString() const
 
 bool Tripps::operator<(const struct IHandValueType& other) const
 {
-    const auto &thisTypeInfo = typeid(*this);
-    const auto &otherTypeInfo = typeid(other);
-    if(thisTypeInfo == otherTypeInfo) {
+    const auto& thisTypeInfo = typeid(*this);
+    const auto& otherTypeInfo = typeid(other);
+    if (thisTypeInfo == otherTypeInfo) {
         auto otherDerrived = static_cast<const Tripps&>(other);
         return *this < otherDerrived;
     }
@@ -505,9 +490,9 @@ bool Tripps::operator<(const struct IHandValueType& other) const
     return sTypeInfos[thisTypeInfo.hash_code()] < sTypeInfos[otherTypeInfo.hash_code()];
 }
 
-bool Tripps::operator<(const struct Tripps& other) const 
+bool Tripps::operator<(const struct Tripps& other) const
 {
-    if(mTripps == other.mTripps) {
+    if (mTripps == other.mTripps) {
         return mKickers < other.mKickers;
     }
     return mTripps < other.mTripps;
@@ -515,9 +500,9 @@ bool Tripps::operator<(const struct Tripps& other) const
 
 //// Straight //////////////////////////////////////////////////////////////////
 
-bool Straight::operator==(const struct IHandValueType &other) const
+bool Straight::operator==(const struct IHandValueType& other) const
 {
-    if(typeid(*this) == typeid(other)) {
+    if (typeid(*this) == typeid(other)) {
         auto otherDerrived = static_cast<const Straight&>(other);
         return *this == otherDerrived;
     }
@@ -526,9 +511,9 @@ bool Straight::operator==(const struct IHandValueType &other) const
 
 bool Straight::operator<(const struct IHandValueType& other) const
 {
-    const auto &thisTypeInfo = typeid(*this);
-    const auto &otherTypeInfo = typeid(other);
-    if(thisTypeInfo == otherTypeInfo) {
+    const auto& thisTypeInfo = typeid(*this);
+    const auto& otherTypeInfo = typeid(other);
+    if (thisTypeInfo == otherTypeInfo) {
         auto otherDerrived = static_cast<const Straight&>(other);
         return *this < otherDerrived;
     }
@@ -536,7 +521,7 @@ bool Straight::operator<(const struct IHandValueType& other) const
     return sTypeInfos[thisTypeInfo.hash_code()] < sTypeInfos[otherTypeInfo.hash_code()];
 }
 
-bool Straight::operator==(const struct Straight &other) const
+bool Straight::operator==(const struct Straight& other) const
 {
     return mHighCard == other.mHighCard;
 }
@@ -555,7 +540,7 @@ bool Straight::operator<(const struct Straight& other) const
 
 //// Flush ////////////////////////////////////////////////////////////////////
 
-bool Flush::operator==(const struct Flush &other) const
+bool Flush::operator==(const struct Flush& other) const
 {
     return mCards == other.mCards && mSuit == other.mSuit;
 }
@@ -567,9 +552,9 @@ std::string Flush::toString() const
     return oss.str();
 }
 
-bool Flush::operator==(const struct IHandValueType &other) const
+bool Flush::operator==(const struct IHandValueType& other) const
 {
-    if(typeid(*this) == typeid(other)) {
+    if (typeid(*this) == typeid(other)) {
         auto otherDerrived = static_cast<const Flush&>(other);
         return *this == otherDerrived;
     }
@@ -578,9 +563,9 @@ bool Flush::operator==(const struct IHandValueType &other) const
 
 bool Flush::operator<(const struct IHandValueType& other) const
 {
-    const auto &thisTypeInfo = typeid(*this);
-    const auto &otherTypeInfo = typeid(other);
-    if(thisTypeInfo == otherTypeInfo) {
+    const auto& thisTypeInfo = typeid(*this);
+    const auto& otherTypeInfo = typeid(other);
+    if (thisTypeInfo == otherTypeInfo) {
         auto otherDerrived = static_cast<const Flush&>(other);
         return *this < otherDerrived;
     }
@@ -595,7 +580,7 @@ bool Flush::operator<(const struct Flush& other) const
 
 //// FullHouse /////////////////////////////////////////////////////////////////
 
-bool FullHouse::operator==(const struct FullHouse& other) const 
+bool FullHouse::operator==(const struct FullHouse& other) const
 {
     return mTripps == other.mTripps && mPair == other.mPair;
 }
@@ -607,9 +592,9 @@ std::string FullHouse::toString() const
     return oss.str();
 }
 
-bool FullHouse::operator==(const struct IHandValueType &other) const
+bool FullHouse::operator==(const struct IHandValueType& other) const
 {
-    if(typeid(*this) == typeid(other)) {
+    if (typeid(*this) == typeid(other)) {
         auto otherDerrived = static_cast<const FullHouse&>(other);
         return *this == otherDerrived;
     }
@@ -618,9 +603,9 @@ bool FullHouse::operator==(const struct IHandValueType &other) const
 
 bool FullHouse::operator<(const struct IHandValueType& other) const
 {
-    const auto &thisTypeInfo = typeid(*this);
-    const auto &otherTypeInfo = typeid(other);
-    if(thisTypeInfo == otherTypeInfo) {
+    const auto& thisTypeInfo = typeid(*this);
+    const auto& otherTypeInfo = typeid(other);
+    if (thisTypeInfo == otherTypeInfo) {
         auto otherDerrived = static_cast<const FullHouse&>(other);
         return *this < otherDerrived;
     }
@@ -630,7 +615,7 @@ bool FullHouse::operator<(const struct IHandValueType& other) const
 
 bool FullHouse::operator<(const struct FullHouse& other) const
 {
-    if(mTripps == other.mTripps) {
+    if (mTripps == other.mTripps) {
         return mPair < other.mPair;
     }
     return mTripps < other.mTripps;
@@ -638,7 +623,7 @@ bool FullHouse::operator<(const struct FullHouse& other) const
 
 //// Quads /////////////////////////////////////////////////////////////////////
 
-bool Quads::operator==(const struct Quads &other) const 
+bool Quads::operator==(const struct Quads& other) const
 {
     return mQuads == other.mQuads && mKicker == other.mKicker;
 }
@@ -650,10 +635,9 @@ std::string Quads::toString() const
     return oss.str();
 }
 
-
-bool Quads::operator==(const struct IHandValueType &other) const
+bool Quads::operator==(const struct IHandValueType& other) const
 {
-    if(typeid(*this) == typeid(other)) {
+    if (typeid(*this) == typeid(other)) {
         auto otherDerrived = static_cast<const Quads&>(other);
         return *this == otherDerrived;
     }
@@ -662,9 +646,9 @@ bool Quads::operator==(const struct IHandValueType &other) const
 
 bool Quads::operator<(const struct IHandValueType& other) const
 {
-    const auto &thisTypeInfo = typeid(*this);
-    const auto &otherTypeInfo = typeid(other);
-    if(thisTypeInfo == otherTypeInfo) {
+    const auto& thisTypeInfo = typeid(*this);
+    const auto& otherTypeInfo = typeid(other);
+    if (thisTypeInfo == otherTypeInfo) {
         auto otherDerrived = static_cast<const Quads&>(other);
         return *this < otherDerrived;
     }
@@ -679,7 +663,7 @@ bool Quads::operator<(const struct Quads& other) const
 
 //// StraightFlush /////////////////////////////////////////////////////////////
 
-bool StraightFlush::operator==(const struct StraightFlush &other) const 
+bool StraightFlush::operator==(const struct StraightFlush& other) const
 {
     return mHighCard == other.mHighCard && mSuit == other.mSuit;
 }
@@ -691,9 +675,9 @@ std::string StraightFlush::toString() const
     return oss.str();
 }
 
-bool StraightFlush::operator==(const struct IHandValueType &other) const
+bool StraightFlush::operator==(const struct IHandValueType& other) const
 {
-    if(typeid(*this) == typeid(other)) {
+    if (typeid(*this) == typeid(other)) {
         auto otherDerrived = static_cast<const StraightFlush&>(other);
         return *this == otherDerrived;
     }
@@ -702,9 +686,9 @@ bool StraightFlush::operator==(const struct IHandValueType &other) const
 
 bool StraightFlush::operator<(const struct IHandValueType& other) const
 {
-    const auto &thisTypeInfo = typeid(*this);
-    const auto &otherTypeInfo = typeid(other);
-    if(thisTypeInfo == otherTypeInfo) {
+    const auto& thisTypeInfo = typeid(*this);
+    const auto& otherTypeInfo = typeid(other);
+    if (thisTypeInfo == otherTypeInfo) {
         auto otherDerrived = static_cast<const StraightFlush&>(other);
         return *this < otherDerrived;
     }
@@ -719,7 +703,7 @@ bool StraightFlush::operator<(const struct StraightFlush& other) const
 
 //// RoyalFlush ////////////////////////////////////////////////////////////////
 
-bool RoyalFlush::operator==(const struct RoyalFlush &other) const 
+bool RoyalFlush::operator==(const struct RoyalFlush& other) const
 {
     return mSuit == other.mSuit;
 }
@@ -731,9 +715,9 @@ std::string RoyalFlush::toString() const
     return oss.str();
 }
 
-bool RoyalFlush::operator==(const struct IHandValueType &other) const
+bool RoyalFlush::operator==(const struct IHandValueType& other) const
 {
-    if(typeid(*this) == typeid(other)) {
+    if (typeid(*this) == typeid(other)) {
         auto otherDerrived = static_cast<const RoyalFlush&>(other);
         return *this == otherDerrived;
     }
@@ -742,9 +726,9 @@ bool RoyalFlush::operator==(const struct IHandValueType &other) const
 
 bool RoyalFlush::operator<(const struct IHandValueType& other) const
 {
-    const auto &thisTypeInfo = typeid(*this);
-    const auto &otherTypeInfo = typeid(other);
-    if(thisTypeInfo == otherTypeInfo) {
+    const auto& thisTypeInfo = typeid(*this);
+    const auto& otherTypeInfo = typeid(other);
+    if (thisTypeInfo == otherTypeInfo) {
         auto otherDerrived = static_cast<const RoyalFlush&>(other);
         return *this < otherDerrived;
     }
@@ -759,7 +743,7 @@ bool RoyalFlush::operator<(const struct RoyalFlush& other) const
 
 //// HandValue ////////////////////////////////////////////////////////////////
 
-HandValue::HandValue(const Cards &cards)
+HandValue::HandValue(const Cards& cards)
 {
     mHandValueType = evaluateHand(cards);
 }
@@ -772,52 +756,52 @@ IHandValueType& HandValue::getHandValueType() const
 std::unique_ptr<IHandValueType> HandValue::evaluateHand(const Cards& cards)
 {
     auto royalFlush = getRoyalFlush(cards);
-    if(royalFlush) {
+    if (royalFlush) {
         return std::make_unique<RoyalFlush>(*royalFlush);
     }
 
     auto straightFlush = getStraightFlush(cards);
-    if(straightFlush) {
+    if (straightFlush) {
         return std::make_unique<StraightFlush>(*straightFlush);
     }
 
     auto quads = getQuads(cards);
-    if(quads) {
+    if (quads) {
         return std::make_unique<Quads>(*quads);
     }
 
     auto fullHouse = getFullHouse(cards);
-    if(fullHouse) {
+    if (fullHouse) {
         return std::make_unique<FullHouse>(*fullHouse);
     }
 
     auto flush = getFlush(cards);
-    if(flush) {
+    if (flush) {
         return std::make_unique<Flush>(*flush);
     }
 
     auto straight = getStraight(cards);
-    if(straight) {
+    if (straight) {
         return std::make_unique<Straight>(*straight);
     }
 
     auto tripps = getTripps(cards);
-    if(tripps) {
+    if (tripps) {
         return std::make_unique<Tripps>(*tripps);
     }
 
     auto twoPair = getTwoPair(cards);
-    if(twoPair) {
+    if (twoPair) {
         return std::make_unique<TwoPair>(*twoPair);
     }
 
     auto onePair = getOnePair(cards);
-    if(onePair) {
+    if (onePair) {
         return std::make_unique<OnePair>(*onePair);
     }
 
     auto highCard = getHighCard(cards);
-    if(!highCard) {
+    if (!highCard) {
         throw Exception("Failed to determine hand value type");
     }
     return std::make_unique<HighCard>(*highCard);

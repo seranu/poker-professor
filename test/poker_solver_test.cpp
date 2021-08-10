@@ -1,6 +1,6 @@
 #include "catch.hpp"
-#include "poker_solver.hpp"
 #include "player.hpp"
+#include "poker_solver.hpp"
 
 using namespace professor;
 TEST_CASE("Poker solver test")

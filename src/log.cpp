@@ -1,11 +1,11 @@
 #include "log.hpp"
 
-namespace professor
-{
-ScopeTimer::ScopeTimer(const char * name)
+namespace professor {
+ScopeTimer::ScopeTimer(const char* name)
     : mName(name)
     , mStart(std::chrono::high_resolution_clock::now())
-    {}
+{
+}
 
 ScopeTimer::~ScopeTimer()
 {

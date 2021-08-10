@@ -1,15 +1,13 @@
 #pragma once
+#include "board.hpp"
 #include "deck.hpp"
 #include "player.hpp"
-#include "board.hpp"
 #include <vector>
 
-namespace professor
-{
-class Dealer
-{
+namespace professor {
+class Dealer {
 public:
-    Dealer(const std::vector<Player> &players);
+    Dealer(const std::vector<Player>& players);
 
     void dealPlayerCards();
     void dealFlop();

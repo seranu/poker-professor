@@ -6,21 +6,21 @@
 
 namespace professor {
 constexpr const int kNumCards = 52;
-class Deck
-{
+class Deck {
 public:
     Deck();
-    Deck(const std::vector<Card> &cards);
-    Deck(const Deck &) = default;
+    Deck(const std::vector<Card>& cards);
+    Deck(const Deck&) = default;
     Deck& operator=(const Deck&) = default;
-    Deck(Deck &&) = default;
-    Deck& operator=(Deck &&) = default;
+    Deck(Deck&&) = default;
+    Deck& operator=(Deck&&) = default;
 
     void reset();
     void shuffle();
     void burnCard(Card card);
     void burnCards(Cards cards);
     Card draw();
+
 private:
     Card burnCard(size_t idx);
     std::vector<Card> mCards;

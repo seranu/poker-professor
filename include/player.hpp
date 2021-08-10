@@ -1,24 +1,27 @@
 #pragma once
-#include <string>
 #include <optional>
+#include <string>
 
 #include "card.hpp"
 
-namespace professor
-{
-class Player
-{
+namespace professor {
+class Player {
 public:
     Player(std::string name)
         : mName(std::move(name))
         , mChips(0)
-        {}    
-    
+    {
+    }
+
     void setCards(std::optional<Cards> cards)
-        { mCards = cards; }
+    {
+        mCards = cards;
+    }
 
     std::optional<Cards> getCards() const
-        { return mCards; }
+    {
+        return mCards;
+    }
 
     std::string toString() const;
 

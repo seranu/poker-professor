@@ -4,11 +4,9 @@
 
 #include <vector>
 
-namespace professor
-{
-class PokerSolver
-{
+namespace professor {
+class PokerSolver {
 public:
-    std::vector<double> solve(const std::vector<Player> &playerCards, const Cards &cards);
+    std::vector<double> solve(const std::vector<Player>& playerCards, const Cards& cards);
 };
 }
