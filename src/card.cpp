@@ -253,11 +253,6 @@ std::string Cards::toString() const
     return result;
 }
 
-uint16_t Cards::getSuit(Suit suit) const
-{
-    return static_cast<uint16_t>(mInternalRepresentation >> static_cast<unsigned short>(suit));
-}
-
 CardRanks::CardRanks(const std::vector<CardRank> &ranks)
 {
     for(auto rank: ranks) {

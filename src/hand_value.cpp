@@ -97,14 +97,9 @@ uint16_t getSameCards(const Cards &cards)
         | (hearts & clubs) | (hearts & diamonds) | (clubs & diamonds);
 
 }
-}
-
-namespace professor
+std::map<uint64_t, Suit, std::greater<uint64_t>> generateRoyalFlushesMap()
 {
-
-std::unordered_map<uint64_t, Suit> getRoyalFlushesMap()
-{
-    decltype(getRoyalFlushesMap()) result;
+    decltype(generateRoyalFlushesMap()) result;
     for(auto suit: getAllSuits())
     {
         uint64_t cards = static_cast<uint64_t>(aceHighStraight()) << static_cast<unsigned short>(suit);
@@ -113,9 +108,9 @@ std::unordered_map<uint64_t, Suit> getRoyalFlushesMap()
     return result;
 }
 
-std::map<uint64_t, Suit> getStraightFlushesMap()
+std::map<uint64_t, Suit, std::greater<uint64_t>> generateStraightFlushesMap()
 {
-    decltype(getStraightFlushesMap()) result;
+    decltype(generateStraightFlushesMap()) result;
     for(auto suit: getAllSuits()) 
     {
         uint16_t cardRanks = aceHighStraight(); 
@@ -134,9 +129,9 @@ std::map<uint64_t, Suit> getStraightFlushesMap()
     return result;
 }
 
-std::set<uint16_t> getStraightMap()
+std::set<uint16_t, std::greater<uint64_t>> generateStraightMap()
 {
-    decltype(getStraightMap()) result;
+    decltype(generateStraightMap()) result;
     uint16_t cardRanks = aceHighStraight();
     while(__builtin_popcount(cardRanks) == 5) {
         result.insert(cardRanks);
@@ -144,6 +139,28 @@ std::set<uint16_t> getStraightMap()
     }
     result.insert(wheelStraight());
     return result;
+}
+}
+
+namespace professor
+{
+
+std::map<uint64_t, Suit, std::greater<uint64_t>> &getRoyalFlushesMap()
+{
+    static std::map<uint64_t, Suit, std::greater<uint64_t>> sRoyalFlushes = generateRoyalFlushesMap();
+    return sRoyalFlushes;
+}
+
+std::map<uint64_t, Suit, std::greater<uint64_t>> &getStraightFlushesMap()
+{
+    static std::map<uint64_t, Suit, std::greater<uint64_t>> sStraightFlushes = generateStraightFlushesMap();
+    return sStraightFlushes;
+}
+
+std::set<uint16_t, std::greater<uint64_t>> &getStraightMap()
+{
+    static std::set<uint16_t, std::greater<uint64_t>> sStraights = generateStraightMap();
+    return sStraights;
 }
 
 uint16_t getFirstNSetBits(uint16_t number, unsigned short count)
@@ -204,28 +221,36 @@ std::optional<Tripps> getTripps(const Cards &cards)
 
 std::optional<Straight> getStraight(const Cards &cards)
 {
-    static const auto sStraightMap = getStraightMap();
-    auto orCardSuits = orSuits(cards);
-    for(auto it = sStraightMap.rbegin(); it != sStraightMap.rend(); it++) {
-        if((orCardSuits & *it) == *it) {
-            if(*it == wheelStraight()) {
-                return { Straight { CardRank::Five } };
-            }
-            return { Straight { highCard(*it) } };
+    const auto orCards = orSuits(cards);
+    uint16_t straight = aceHighStraight();
+    const auto &wStraight = wheelStraight();
+    while(__builtin_popcount(straight) == 5) {
+        if((orCards & straight) == straight) {
+            return { Straight { highCard(straight) } };
         }
+        straight >>= 1;
+    }
+
+    if((orCards & wStraight) == wStraight) {
+        return { Straight { CardRank::Five } };
     }
     return {};
 }
 
+#define CHECK_RETURN_FLUSH(cards, suit)                                              \
+    {                                                                                \
+        const auto &suitCards = cards.getSuit(suit);                                 \
+        if (__builtin_popcount(suitCards) >= 5) {                                    \
+            return { Flush { CardRanks(getFirstNSetBits(suitCards, 5)), suit } };    \
+        }                                                                            \
+    }
+
 std::optional<Flush> getFlush(const Cards &cards)
 {
-    const auto& allSuits = getAllSuits();
-    for(auto &suit: allSuits) {
-        auto suitCards = cards.getSuit(suit);
-        if (__builtin_popcount(suitCards) >= 5) {
-            return { Flush { CardRanks(getFirstNSetBits(suitCards, 5)), suit } };
-        }
-    }
+    CHECK_RETURN_FLUSH(cards, Suit::Spade);
+    CHECK_RETURN_FLUSH(cards, Suit::Diamond);
+    CHECK_RETURN_FLUSH(cards, Suit::Clubs);
+    CHECK_RETURN_FLUSH(cards, Suit::Heart);
     return {};
 }
 
@@ -263,41 +288,55 @@ std::optional<FullHouse> getFullHouse(const Cards &cards)
 
 std::optional<Quads> getQuads(const Cards &cards)
 {
-    auto potentialQuad = static_cast<CardRank>(andSuits(cards));
-    const auto &cardRankSet = getCardRankSet();
-    if(cardRankSet.find(potentialQuad) != cardRankSet.end()) {
-        auto kickers = xorSuits(cards);
-        return { Quads { potentialQuad, highCard(kickers)} };
-    }
 
+    uint16_t potentialQuad = andSuits(cards);
+    if(potentialQuad) {
+        return { Quads { static_cast<CardRank>(potentialQuad), highCard(xorSuits(cards)) } };
+    }
     return {};
 }
 
+
+#define CHECK_RETURN_STRAIGHT_FLUSH(cards, suit)                        \
+    {                                                                   \
+        const auto suitCards = cards.getSuit(suit);                     \
+        uint16_t straight = aceHighStraight() >> 1;                     \
+        while(__builtin_popcount(straight) == 5) {                      \
+            if((suitCards & straight) == straight) {                    \
+                return { StraightFlush { highCard(straight), suit } };  \
+            }                                                           \
+            straight >>= 1;                                             \
+        }                                                               \
+        if((suitCards & wStraight) == wStraight) {                      \
+            return { StraightFlush { CardRank::Five, suit } };          \
+        }                                                               \
+    }
 std::optional<StraightFlush> getStraightFlush(const Cards &cards)
 {
-    static const auto sStraightFlushes = getStraightFlushesMap();
-    const auto& cardsInt = cards.internalRepresentation();
-    for(auto it = sStraightFlushes.rbegin(); it != sStraightFlushes.rend(); it++) {
-        if((cardsInt & it->first) == it->first) {
-            assert(it->first != 0);
-            if(it->first == (static_cast<uint64_t>(wheelStraight()) << static_cast<unsigned short>(it->second))) {
-                return { StraightFlush { CardRank::Five, it->second } };
-            }
-            return { StraightFlush { highCard(it->first), it->second } };
-        }
-    }
+    const auto &wStraight = wheelStraight();
+    CHECK_RETURN_STRAIGHT_FLUSH(cards, Suit::Spade);
+    CHECK_RETURN_STRAIGHT_FLUSH(cards, Suit::Diamond);
+    CHECK_RETURN_STRAIGHT_FLUSH(cards, Suit::Heart);
+    CHECK_RETURN_STRAIGHT_FLUSH(cards, Suit::Clubs);
     return {};
 }
+
+#define CHECK_RETURN_ROYAL_FLUSH(suit)                                                                        \
+    {                                                                                                         \
+        const auto &suitRoyalFlush = static_cast<uint64_t>(royalFlush) << static_cast<unsigned short>(suit);  \
+        if((cardsInt & suitRoyalFlush) == suitRoyalFlush) {                                                   \
+            return { RoyalFlush { suit } };                                                                   \
+        }                                                                                                     \
+    }
 
 std::optional<RoyalFlush> getRoyalFlush(const Cards &cards)
 {
-    static const auto sRoyalFlushes = getRoyalFlushesMap();
-    const auto& cardsInt = cards.internalRepresentation();
-    for(const auto &royalFlush: sRoyalFlushes) {
-        if((cardsInt & royalFlush.first) == royalFlush.first) {
-            return { RoyalFlush { royalFlush.second } };
-        }
-    }
+    const uint16_t royalFlush = aceHighStraight();
+    const uint64_t cardsInt = cards.internalRepresentation();
+    CHECK_RETURN_ROYAL_FLUSH(Suit::Spade);
+    CHECK_RETURN_ROYAL_FLUSH(Suit::Diamond);
+    CHECK_RETURN_ROYAL_FLUSH(Suit::Clubs);
+    CHECK_RETURN_ROYAL_FLUSH(Suit::Heart);
     return {};
 }
 
@@ -722,69 +761,66 @@ bool RoyalFlush::operator<(const struct RoyalFlush& other) const
 
 HandValue::HandValue(const Cards &cards)
 {
-    auto royalFlush = getRoyalFlush(cards);
-    if(royalFlush) {
-        mHandValueType = std::make_unique<RoyalFlush>(*royalFlush);
-        return;
-    }
-
-    auto straightFlush = getStraightFlush(cards);
-    if(straightFlush) {
-        mHandValueType = std::make_unique<StraightFlush>(*straightFlush);
-        return;
-    }
-
-    auto quads = getQuads(cards);
-    if(quads) {
-        mHandValueType = std::make_unique<Quads>(*quads);
-        return;
-    }
-
-    auto fullHouse = getFullHouse(cards);
-    if(fullHouse) {
-        mHandValueType = std::make_unique<FullHouse>(*fullHouse);
-        return;
-    }
-
-    auto flush = getFlush(cards);
-    if(flush) {
-        mHandValueType = std::make_unique<Flush>(*flush);
-        return;
-    }
-
-    auto straight = getStraight(cards);
-    if(straight) {
-        mHandValueType = std::make_unique<Straight>(*straight);
-        return;
-    }
-
-    auto tripps = getTripps(cards);
-    if(tripps) {
-        mHandValueType = std::make_unique<Tripps>(*tripps);
-        return;
-    }
-
-    auto twoPair = getTwoPair(cards);
-    if(twoPair) {
-        mHandValueType = std::make_unique<TwoPair>(*twoPair);
-        return;
-    }
-
-    auto onePair = getOnePair(cards);
-    if(onePair) {
-        mHandValueType = std::make_unique<OnePair>(*onePair);
-        return;
-    }
-
-    auto highCard = getHighCard(cards);
-    if(!highCard) {
-        throw Exception("Failed to determine hand value type");
-    }
-    mHandValueType = std::make_unique<HighCard>(*highCard);
+    mHandValueType = evaluateHand(cards);
 }
 
 IHandValueType& HandValue::getHandValueType() const
 {
     return *mHandValueType;
 }
+
+std::unique_ptr<IHandValueType> HandValue::evaluateHand(const Cards& cards)
+{
+    auto royalFlush = getRoyalFlush(cards);
+    if(royalFlush) {
+        return std::make_unique<RoyalFlush>(*royalFlush);
+    }
+
+    auto straightFlush = getStraightFlush(cards);
+    if(straightFlush) {
+        return std::make_unique<StraightFlush>(*straightFlush);
+    }
+
+    auto quads = getQuads(cards);
+    if(quads) {
+        return std::make_unique<Quads>(*quads);
+    }
+
+    auto fullHouse = getFullHouse(cards);
+    if(fullHouse) {
+        return std::make_unique<FullHouse>(*fullHouse);
+    }
+
+    auto flush = getFlush(cards);
+    if(flush) {
+        return std::make_unique<Flush>(*flush);
+    }
+
+    auto straight = getStraight(cards);
+    if(straight) {
+        return std::make_unique<Straight>(*straight);
+    }
+
+    auto tripps = getTripps(cards);
+    if(tripps) {
+        return std::make_unique<Tripps>(*tripps);
+    }
+
+    auto twoPair = getTwoPair(cards);
+    if(twoPair) {
+        return std::make_unique<TwoPair>(*twoPair);
+    }
+
+    auto onePair = getOnePair(cards);
+    if(onePair) {
+        return std::make_unique<OnePair>(*onePair);
+    }
+
+    auto highCard = getHighCard(cards);
+    if(!highCard) {
+        throw Exception("Failed to determine hand value type");
+    }
+    return std::make_unique<HighCard>(*highCard);
+}
+
 }

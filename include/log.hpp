@@ -4,7 +4,7 @@
 #include <chrono>
 
 #ifndef NDEBUG
-#define PP_LOG_DEBUG(...) PP_LOG(__VA_ARGS__)
+#define PP_LOG_DEBUG(...) // PP_LOG(__VA_ARGS__)
 #define PP_LOG_INFO(...) PP_LOG(__VA_ARGS__)
 #else
 #define PP_LOG_DEBUG(...)

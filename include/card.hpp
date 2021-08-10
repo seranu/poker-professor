@@ -60,7 +60,7 @@ public:
         { return mInternalRepresentation == other.mInternalRepresentation; }
 
     std::string toString() const;
-    uint64_t internalRepresentation() const { return mInternalRepresentation; }
+    inline uint64_t internalRepresentation() const { return mInternalRepresentation; }
 
 private:
     uint64_t mInternalRepresentation{ 0 };
@@ -76,8 +76,13 @@ public:
         {}
 
     std::string toString() const;
-    uint64_t internalRepresentation() const { return mInternalRepresentation; }
-    uint16_t getSuit(Suit suit) const;
+    inline uint64_t internalRepresentation() const { return mInternalRepresentation; }
+    inline uint16_t getSuit(Suit suit) const
+    {
+        return static_cast<uint16_t>(mInternalRepresentation >> static_cast<unsigned short>(suit));
+    }
+
+
     void add(Card card);
     void add(Cards cards);
     void add(const std::vector<Card> &cards);
@@ -98,7 +103,7 @@ public:
         {}
     
     CardRanks(const std::vector<CardRank> &ranks);
-    uint16_t internalRepresentation() const { return mInternalRepresentation; }
+    inline uint16_t internalRepresentation() const { return mInternalRepresentation; }
     bool operator==(const CardRanks &other) const {
         return mInternalRepresentation == other.mInternalRepresentation;
     }

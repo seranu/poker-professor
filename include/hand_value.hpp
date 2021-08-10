@@ -14,6 +14,7 @@ namespace professor
 {
 struct IHandValueType
 {
+    virtual ~IHandValueType() {}
     virtual std::string toString() const = 0;
     virtual bool operator< (const struct IHandValueType& other) const = 0;
     virtual bool operator==(const struct IHandValueType& other) const = 0;
@@ -221,8 +222,8 @@ std::optional<StraightFlush> getStraightFlush(const Cards &cards);
 std::optional<RoyalFlush> getRoyalFlush(const Cards &cards);
 
 
-std::unordered_map<uint64_t, Suit> getRoyalFlushesMap();
-std::map<uint64_t, Suit> getStraightFlushesMap();
+std::map<uint64_t, Suit, std::greater<uint64_t>> &getRoyalFlushesMap();
+std::map<uint64_t, Suit, std::greater<uint64_t>> &getStraightFlushesMap();
 
 
 class HandValue
@@ -232,6 +233,7 @@ public:
 
     IHandValueType& getHandValueType() const;
 
+    static std::unique_ptr<IHandValueType> evaluateHand(const Cards& cards);
 private:
     std::unique_ptr<IHandValueType> mHandValueType;
 };

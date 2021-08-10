@@ -28,10 +28,9 @@ EquityResult EquityCalculator::calculateEquity(Cards heroHand, Cards villanHand,
     players[0].setCards(heroHand);
     players[1].setCards(villanHand);
     PokerSolver solver;
-    auto startingDeck = getDeckWithoutCards(Cards(heroHand.internalRepresentation() | villanHand.internalRepresentation()));
+    auto deck = getDeckWithoutCards(Cards(heroHand.internalRepresentation() | villanHand.internalRepresentation()));
     std::vector<double> totalEquities(players.size(), 0.0);
     for(auto i = 0; i < numRuns; i++) {
-        Deck deck(startingDeck);
         deck.reset(); 
         PP_LOG_DEBUG("Run %d", i);
         Board board;
